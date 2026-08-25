@@ -32,13 +32,19 @@ const markerById = {};
 
 function makeIcon(type, highlighted) {
   const color = INCIDENT_TYPES[type]?.color || '#999';
-  const size = highlighted ? 22 : 16;
+  const isAggregate = type === 'drone_intercept_night';
+  // Агрегатные ночные маркеры делаем мельче и полупрозрачными без белой
+  // окантовки — их на порядок больше, и они не должны визуально спорить
+  // с точечными инцидентами.
+  const size = highlighted ? (isAggregate ? 14 : 22) : (isAggregate ? 8 : 16);
+  const border = isAggregate ? '1px solid rgba(255,255,255,0.45)' : '2px solid rgba(255,255,255,0.85)';
+  const opacity = isAggregate ? 0.55 : 1;
   return L.divIcon({
     className: '',
     html: `<div style="
       width:${size}px;height:${size}px;border-radius:50%;
-      background:${color};border:2px solid rgba(255,255,255,0.85);
-      box-shadow:0 0 6px rgba(0,0,0,0.6);
+      background:${color};border:${border};opacity:${opacity};
+      box-shadow:0 0 4px rgba(0,0,0,0.5);
     "></div>`,
     iconSize: [size, size],
     iconAnchor: [size / 2, size / 2],
@@ -247,7 +253,7 @@ function closeDetail() {
 
 function openDetail(incident) {
   const typeDef = INCIDENT_TYPES[incident.type];
-  const isDrone = incident.type === 'drone_strike';
+  const isDrone = incident.type === 'drone_strike' || incident.type === 'drone_intercept_night';
   const targetRow = incident.target ? `
     <div class="detail-row">
       <span class="label">Объект</span>
@@ -412,6 +418,104 @@ function formatDateTime(iso) {
 
 refreshDroneBtn.addEventListener('click', () => fetchDroneStrikes());
 
+// ---------- Автообновление: ночные агрегаты ПВО по регионам ----------
+// Отдельный, гораздо более многочисленный слой: там, где источник называет
+// только регион и общее число сбитых БПЛА за ночь, но не точку падения.
+// Каждая (дата, регион) получает небольшое детерминированное смещение вокруг
+// центра региона, чтобы десятки ночей по одному региону не сливались в одну
+// точку на карте — это не точные координаты, а визуальная развёртка.
+const AGGREGATE_DATA_URLS = [
+  'https://raw.githubusercontent.com/IIIypuk-hash/TMap/main/drone-aggregate.json',
+  'drone-aggregate.json',
+];
+const seenAggregateIds = new Set();
+let aggregateLastUpdated = null;
+const aggregateUpdatedEl = document.getElementById('aggregateUpdated');
+const aggregateCountEl = document.getElementById('aggregateCount');
+const refreshAggregateBtn = document.getElementById('refreshAggregateBtn');
+
+function jitterCoords(baseCoords, seedStr, radiusDeg) {
+  // Простой детерминированный хэш строки -> два псевдослучайных числа,
+  // чтобы одна и та же (дата, регион) всегда давала одно и то же смещение.
+  let h1 = 0, h2 = 0;
+  for (let i = 0; i < seedStr.length; i++) {
+    h1 = (h1 * 31 + seedStr.charCodeAt(i)) >>> 0;
+    h2 = (h2 * 131 + seedStr.charCodeAt(i)) >>> 0;
+  }
+  const angle = (h1 % 3600) / 3600 * Math.PI * 2;
+  const dist = ((h2 % 1000) / 1000) * radiusDeg;
+  return [baseCoords[0] + Math.cos(angle) * dist, baseCoords[1] + Math.sin(angle) * dist * 1.5];
+}
+
+async function fetchDroneAggregate() {
+  refreshAggregateBtn.disabled = true;
+  refreshAggregateBtn.textContent = '⟳ Обновление…';
+  let ok = false;
+  for (const baseUrl of AGGREGATE_DATA_URLS) {
+    try {
+      const sep = baseUrl.includes('?') ? '&' : '?';
+      const res = await fetch(`${baseUrl}${sep}t=${Date.now()}`, { cache: 'no-store' });
+      if (!res.ok) continue;
+      const data = await res.json();
+      mergeDroneAggregate(data);
+      ok = true;
+      break;
+    } catch (e) {
+      // пробуем следующий источник
+    }
+  }
+  refreshAggregateBtn.disabled = false;
+  refreshAggregateBtn.textContent = '⟳ Обновить сейчас';
+  if (!ok) aggregateUpdatedEl.textContent = 'ошибка загрузки';
+  return ok;
+}
+
+function mergeDroneAggregate(data) {
+  let added = false;
+  (data.nights || []).forEach(night => {
+    (night.regions || []).forEach(r => {
+      const id = `agg-${night.date}-${r.region}`;
+      if (seenAggregateIds.has(id)) return;
+      const base = REGION_CENTROIDS[r.region];
+      if (!base) {
+        console.warn('Нет координат для региона агрегата ПВО:', r.region);
+        return;
+      }
+      seenAggregateIds.add(id);
+      const coords = jitterCoords(base, id, 0.35);
+      const countText = r.count != null ? `сбито ${r.count} БПЛА над регионом` : 'регион в зоне отражения атаки';
+      const totalText = night.national_total != null ? `; всего по стране в эту ночь — ${night.national_total}` : '';
+      allIncidents.push({
+        id,
+        date: night.date,
+        year: Number(String(night.date).slice(0, 4)),
+        name: `Ночь на ${formatDate(night.date)}: ${r.region}`,
+        type: 'drone_intercept_night',
+        region: r.region,
+        coords,
+        killed: 0,
+        injured: 0,
+        status: 'Агрегированная сводка ПВО, не точечный инцидент',
+        description: `По сводке Минобороны, в эту ночь ${countText}${totalText}. Точка на карте — не место падения, а условное положение около центра региона (см. пояснение слоя).`,
+        source: 'Сводки Минобороны РФ (пересказ СМИ)',
+        target: null,
+      });
+      added = true;
+    });
+  });
+  if (data.generated_at) aggregateLastUpdated = data.generated_at;
+  if (added) rebuildRegionList();
+  updateAggregateStatusUI();
+  if (added) render();
+}
+
+function updateAggregateStatusUI() {
+  aggregateCountEl.textContent = allIncidents.filter(i => i.type === 'drone_intercept_night').length;
+  aggregateUpdatedEl.textContent = aggregateLastUpdated ? formatDateTime(aggregateLastUpdated) : '—';
+}
+
+refreshAggregateBtn.addEventListener('click', () => fetchDroneAggregate());
+
 // ---------- Инициализация ----------
 chronoYearLabel.textContent = state.chronoYear;
 chronoSlider.value = state.chronoYear;
@@ -419,4 +523,6 @@ updateDualTrackVisual();
 render();
 
 fetchDroneStrikes();
+fetchDroneAggregate();
 setInterval(fetchDroneStrikes, DRONE_POLL_INTERVAL_MS);
+setInterval(fetchDroneAggregate, DRONE_POLL_INTERVAL_MS);
