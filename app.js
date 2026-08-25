@@ -482,7 +482,7 @@ function mergeDroneAggregate(data) {
         return;
       }
       seenAggregateIds.add(id);
-      const coords = jitterCoords(base, id, 0.35);
+      const coords = jitterCoords(base, id, 0.12);
       const countText = r.count != null ? `сбито ${r.count} БПЛА над регионом` : 'регион в зоне отражения атаки';
       const totalText = night.national_total != null ? `; всего по стране в эту ночь — ${night.national_total}` : '';
       allIncidents.push({
