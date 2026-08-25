@@ -3,9 +3,14 @@
 const MIN_YEAR = 1991;
 const MAX_YEAR = 2026;
 
+// ---------- Данные ----------
+// allIncidents = статические данные (data.js) + удары БПЛА, подгружаемые
+// асинхронно из drone-strikes.json и периодически обновляемые.
+let allIncidents = [...incidents];
+
 // ---------- Состояние ----------
 const state = {
-  selectedRegions: new Set(incidents.map(i => i.region)),
+  selectedRegions: new Set(allIncidents.map(i => i.region)),
   selectedTypes: new Set(Object.keys(INCIDENT_TYPES)),
   yearFrom: MIN_YEAR,
   yearTo: MAX_YEAR,
@@ -42,9 +47,9 @@ function makeIcon(type, highlighted) {
 
 // ---------- Построение списков фильтров ----------
 const regionListEl = document.getElementById('regionList');
-const uniqueRegions = [...new Set(incidents.map(i => i.region))].sort((a, b) => a.localeCompare(b, 'ru'));
+let uniqueRegions = [...new Set(allIncidents.map(i => i.region))].sort((a, b) => a.localeCompare(b, 'ru'));
 
-uniqueRegions.forEach(region => {
+function addRegionCheckbox(region) {
   const label = document.createElement('label');
   const cb = document.createElement('input');
   cb.type = 'checkbox';
@@ -58,7 +63,22 @@ uniqueRegions.forEach(region => {
   label.appendChild(cb);
   label.appendChild(document.createTextNode(region));
   regionListEl.appendChild(label);
-});
+}
+
+uniqueRegions.forEach(addRegionCheckbox);
+
+// Вызывается после подгрузки новых данных (например, ударов БПЛА), чтобы
+// добавить чекбоксы для регионов, которых не было в исходном наборе.
+function rebuildRegionList() {
+  const currentRegions = [...new Set(allIncidents.map(i => i.region))].sort((a, b) => a.localeCompare(b, 'ru'));
+  currentRegions.forEach(region => {
+    if (uniqueRegions.includes(region)) return;
+    uniqueRegions.push(region);
+    state.selectedRegions.add(region);
+    addRegionCheckbox(region);
+  });
+  uniqueRegions.sort((a, b) => a.localeCompare(b, 'ru'));
+}
 
 document.getElementById('regionsAll').addEventListener('click', () => {
   state.selectedRegions = new Set(uniqueRegions);
@@ -227,6 +247,12 @@ function closeDetail() {
 
 function openDetail(incident) {
   const typeDef = INCIDENT_TYPES[incident.type];
+  const isDrone = incident.type === 'drone_strike';
+  const targetRow = incident.target ? `
+    <div class="detail-row">
+      <span class="label">Объект</span>
+      ${incident.target}
+    </div>` : '';
   detailContent.innerHTML = `
     <div class="detail-badge" style="background:${typeDef.color}">${typeDef.label}</div>
     <h3 class="detail-title">${incident.name}</h3>
@@ -239,6 +265,7 @@ function openDetail(incident) {
       <span class="label">Регион</span>
       ${incident.region}
     </div>
+    ${targetRow}
     <div class="detail-row">
       <span class="label">Жертвы (оценка)</span>
       Погибших: ${incident.killed} · Пострадавших: ${incident.injured}
@@ -248,7 +275,7 @@ function openDetail(incident) {
       ${incident.description}
     </div>
     <div class="detail-row">
-      <span class="label">Статус расследования</span>
+      <span class="label">${isDrone ? 'Статус / последствия' : 'Статус расследования'}</span>
       ${incident.status}
     </div>
     <div class="detail-source">Источник: ${incident.source}</div>
@@ -278,7 +305,7 @@ function render() {
   markersLayer.clearLayers();
   Object.keys(markerById).forEach(k => delete markerById[k]);
 
-  const visible = incidents.filter(passesFilters);
+  const visible = allIncidents.filter(passesFilters);
 
   visible.forEach(incident => {
     const marker = L.marker(incident.coords, { icon: makeIcon(incident.type, false) });
@@ -302,8 +329,94 @@ function render() {
   document.getElementById('statInjured').textContent = visible.reduce((s, i) => s + i.injured, 0);
 }
 
+// ---------- Автообновление: удары БПЛА ----------
+// drone-strikes.json обновляется отдельно (в т.ч. по расписанию, вне этого
+// приложения) и подтягивается сюда периодическим опросом (поллингом), чтобы
+// карта отражала свежие данные без перезагрузки страницы или передеплоя.
+const DRONE_DATA_URLS = [
+  'https://raw.githubusercontent.com/IIIypuk-hash/TMap/main/drone-strikes.json',
+  'drone-strikes.json', // локальный фолбэк, если raw.githubusercontent.com недоступен
+];
+const DRONE_POLL_INTERVAL_MS = 5 * 60 * 1000; // 5 минут
+const seenDroneIds = new Set();
+let droneLastUpdated = null;
+
+const droneUpdatedEl = document.getElementById('droneUpdated');
+const droneCountEl = document.getElementById('droneCount');
+const refreshDroneBtn = document.getElementById('refreshDroneBtn');
+
+async function fetchDroneStrikes() {
+  refreshDroneBtn.disabled = true;
+  refreshDroneBtn.textContent = '⟳ Обновление…';
+  let ok = false;
+  for (const baseUrl of DRONE_DATA_URLS) {
+    try {
+      const sep = baseUrl.includes('?') ? '&' : '?';
+      const res = await fetch(`${baseUrl}${sep}t=${Date.now()}`, { cache: 'no-store' });
+      if (!res.ok) continue;
+      const data = await res.json();
+      mergeDroneStrikes(data);
+      ok = true;
+      break;
+    } catch (e) {
+      // пробуем следующий источник
+    }
+  }
+  refreshDroneBtn.disabled = false;
+  refreshDroneBtn.textContent = '⟳ Обновить сейчас';
+  if (!ok) {
+    droneUpdatedEl.textContent = 'ошибка загрузки';
+  }
+  return ok;
+}
+
+function mergeDroneStrikes(data) {
+  let added = false;
+  (data.strikes || []).forEach(s => {
+    if (seenDroneIds.has(s.id)) return;
+    seenDroneIds.add(s.id);
+    allIncidents.push({
+      id: s.id,
+      date: s.date,
+      year: Number(String(s.date).slice(0, 4)),
+      name: s.name,
+      type: 'drone_strike',
+      region: s.region,
+      coords: s.coords,
+      killed: s.killed || 0,
+      injured: s.injured || 0,
+      status: s.status,
+      description: s.description,
+      source: s.source,
+      target: s.target,
+    });
+    added = true;
+  });
+  if (data.generated_at) droneLastUpdated = data.generated_at;
+
+  if (added) rebuildRegionList();
+  updateDroneStatusUI();
+  if (added) render();
+}
+
+function updateDroneStatusUI() {
+  droneCountEl.textContent = allIncidents.filter(i => i.type === 'drone_strike').length;
+  droneUpdatedEl.textContent = droneLastUpdated ? formatDateTime(droneLastUpdated) : '—';
+}
+
+function formatDateTime(iso) {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return String(iso);
+  return d.toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
+refreshDroneBtn.addEventListener('click', () => fetchDroneStrikes());
+
 // ---------- Инициализация ----------
 chronoYearLabel.textContent = state.chronoYear;
 chronoSlider.value = state.chronoYear;
 updateDualTrackVisual();
 render();
+
+fetchDroneStrikes();
+setInterval(fetchDroneStrikes, DRONE_POLL_INTERVAL_MS);

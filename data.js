@@ -26,6 +26,7 @@ const INCIDENT_TYPES = {
   suicide: { label: 'Смертник', color: '#8b1e3f' },
   attack: { label: 'Вооружённое нападение', color: '#6d597a' },
   other: { label: 'Иное', color: '#457b9d' },
+  drone_strike: { label: 'Удар БПЛА', color: '#ffb703' },
 };
 
 const incidents = [
