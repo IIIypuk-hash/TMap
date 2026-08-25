@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Карта угроз</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <h1>🗺️ Карта угроз</h1>
+  <p class="subtitle">Демонстрационная карта террористических инцидентов в РФ, 1991–2026</p>
+</header>
+
+<div class="app-layout">
+
+  <aside class="sidebar">
+
+    <section class="panel">
+      <h2>Регионы</h2>
+      <div class="panel-actions">
+        <button id="regionsAll" class="btn-link">все</button>
+        <button id="regionsNone" class="btn-link">снять</button>
+      </div>
+      <div id="regionList" class="checkbox-list"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Тип инцидента</h2>
+      <div id="typeList" class="checkbox-list"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Диапазон лет</h2>
+      <div class="range-values">
+        <span id="yearFromLabel">1991</span> — <span id="yearToLabel">2026</span>
+      </div>
+      <div class="dual-range">
+        <div class="dual-range-track" id="dualTrack"></div>
+        <input type="range" id="yearFrom" min="1991" max="2026" value="1991" step="1">
+        <input type="range" id="yearTo" min="1991" max="2026" value="2026" step="1">
+      </div>
+    </section>
+
+    <section class="panel stats">
+      <h2>Статистика по выборке</h2>
+      <div class="stat-row"><span>Инцидентов:</span><strong id="statCount">0</strong></div>
+      <div class="stat-row"><span>Погибших (оценка):</span><strong id="statKilled">0</strong></div>
+      <div class="stat-row"><span>Пострадавших (оценка):</span><strong id="statInjured">0</strong></div>
+    </section>
+
+    <p class="disclaimer">
+      ⚠️ Данные собраны вручную по открытым источникам (СМИ, справочные материалы) для
+      демонстрационных целей. Цифры жертв — ориентировочные, статусы расследования упрощены.
+      Для точных сведений используйте официальные источники.
+    </p>
+
+  </aside>
+
+  <main class="map-area">
+    <div id="map"></div>
+
+    <div class="timeline-bar">
+      <div class="timeline-controls">
+        <button id="playBtn" class="btn-primary" title="Воспроизвести хронологию">▶ Хронология</button>
+        <button id="resetBtn" class="btn-secondary" title="Сбросить">⟲ Сброс</button>
+
+        <label class="mode-toggle">
+          <input type="checkbox" id="onlyCurrentYear">
+          показывать только текущий год
+        </label>
+
+        <label class="speed-select">
+          Скорость:
+          <select id="speedSelect">
+            <option value="1200">медленно</option>
+            <option value="700" selected>обычно</option>
+            <option value="350">быстро</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="chrono-row">
+        <span id="chronoYearLabel" class="chrono-year">1991</span>
+        <input type="range" id="chronoSlider" min="1991" max="2026" value="2026" step="1" class="chrono-slider">
+      </div>
+    </div>
+  </main>
+
+  <aside id="detailPanel" class="detail-panel hidden">
+    <button id="closeDetail" class="close-btn" aria-label="Закрыть">×</button>
+    <div id="detailContent"></div>
+  </aside>
+
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
