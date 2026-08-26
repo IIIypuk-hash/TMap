@@ -327,12 +327,9 @@ function render() {
       <div class="popup-title">${incident.name}</div>
       <div>${formatDate(incident.date)} · ${incident.region}</div>
       <div>Погибших: ${incident.killed}, пострадавших: ${incident.injured}</div>
-      <div class="popup-link" data-id="${incident.id}">Подробнее →</div>
     `);
-    marker.on('popupopen', (e) => {
-      const link = e.popup.getElement().querySelector('.popup-link');
-      if (link) link.addEventListener('click', () => openDetail(incident));
-    });
+    // Клик по маркеру сразу открывает полную карточку с пруфом — отдельная
+    // ссылка "Подробнее" в попапе была лишней (дублировала это же действие).
     marker.on('click', () => openDetail(incident));
     marker.addTo(markersLayer);
     markerById[incident.id] = marker;
