@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Карта угроз</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<link rel="stylesheet" href="style.css?v=5" />
+<link rel="stylesheet" href="style.css?v=6" />
 </head>
 <body>
 
@@ -41,11 +41,11 @@
     </section>
 
     <section class="panel stats">
-      <h2>Ночи ПВО: агрегат по регионам</h2>
+      <h2>Ночные сводки ПВО: агрегат по регионам</h2>
       <div class="stat-row"><span>Обновлено:</span><strong id="aggregateUpdated">—</strong></div>
       <div class="stat-row"><span>Регион-ночей в базе:</span><strong id="aggregateCount">0</strong></div>
       <button id="refreshAggregateBtn" class="btn-secondary" style="margin-top:6px;width:100%;">⟳ Обновить сейчас</button>
-      <p class="mini-note">Из сводок Минобороны: маркер = регион за одну ночь, БЕЗ точки падения (координата условная, около центра региона, с небольшим случайным смещением). Чтобы скрыть весь слой — снимите «Ночь ПВО (агрегат по региону)» в разделе «Тип инцидента» выше.</p>
+      <p class="mini-note">Из сводок Минобороны: маркер = регион за одну ночь, БЕЗ точки падения (координата условная, около центра региона, с небольшим случайным смещением). Чтобы скрыть весь слой — снимите «Ночная сводка ПВО (агрегат по региону)» в разделе «Тип инцидента» выше.</p>
     </section>
 
     <section class="panel">
@@ -78,7 +78,7 @@
       приближены к населённому пункту/объекту, а не к точке падения.
     </p>
     <p class="disclaimer">
-      ⚠️ Слой «Ночи ПВО» — это НЕ отдельные точки падения, а пересказ ежесуточных сводок
+      ⚠️ Слой «Ночные сводки ПВО» — это НЕ отдельные точки падения, а пересказ ежесуточных сводок
       Минобороны РФ по регионам. Один маркер = один регион, отражавший атаку в конкретную
       ночь; координата условная (случайное смещение от центра региона), число сбитых БПЛА
       по региону известно не всегда. Этот слой не претендует на полноту по всем датам года —
@@ -125,7 +125,7 @@
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="data.js?v=5"></script>
-<script src="app.js?v=5"></script>
+<script src="data.js?v=6"></script>
+<script src="app.js?v=6"></script>
 </body>
 </html>
