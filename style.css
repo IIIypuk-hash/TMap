@@ -11,12 +11,11 @@
 
 * { box-sizing: border-box; }
 
-/* Leaflet рисует в атрибуции карты (низ-справа) маленький флаг сине-жёлтых
-   цветов рядом со своим логотипом/ссылкой — это часть самой библиотеки, не
-   нашего кода. Перекрашиваем в бело-сине-красный. */
-.leaflet-attribution-flag path:nth-child(1) { fill: #d52b1e !important; }
-.leaflet-attribution-flag path:nth-child(2) { fill: #0039a6 !important; }
-.leaflet-attribution-flag path:nth-child(3) { fill: #ffffff !important; }
+/* Флаг в атрибуции Leaflet (низ-справа карты) заменяется на честный
+   бело-сине-красный триколор с равными третями через JS (см. app.js,
+   fixAttributionFlag) — исходные полосы SVG неравны по высоте (4:3:1),
+   перекрасить их в CSS до одинаковых пропорций нельзя, только сами фигуры
+   заменить. */
 
 html, body {
   margin: 0;

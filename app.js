@@ -27,6 +27,23 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 18,
 }).addTo(map);
 
+// Leaflet рисует в своей атрибуции (низ-справа) маленький флаг рядом со
+// ссылкой на leafletjs.com — по умолчанию сине-жёлтый, с полосами разной
+// высоты (4:3:1 из 8), поэтому просто перекрасить через CSS не получится
+// сделать равными третями — меняем сами фигуры на три честные равные трети
+// бело-сине-красного цвета.
+function fixAttributionFlag() {
+  const svg = document.querySelector('.leaflet-attribution-flag');
+  if (!svg) return;
+  const third = 8 / 3;
+  svg.innerHTML = `
+    <rect x="0" y="0" width="12" height="${third}" fill="#ffffff"></rect>
+    <rect x="0" y="${third}" width="12" height="${third}" fill="#0039a6"></rect>
+    <rect x="0" y="${third * 2}" width="12" height="${8 - third * 2}" fill="#d52b1e"></rect>
+  `;
+}
+fixAttributionFlag();
+
 const markersLayer = L.layerGroup().addTo(map);
 const markerById = {};
 
