@@ -11,6 +11,13 @@
 
 * { box-sizing: border-box; }
 
+/* Leaflet рисует в атрибуции карты (низ-справа) маленький флаг сине-жёлтых
+   цветов рядом со своим логотипом/ссылкой — это часть самой библиотеки, не
+   нашего кода. Перекрашиваем в бело-сине-красный. */
+.leaflet-attribution-flag path:nth-child(1) { fill: #ffffff !important; }
+.leaflet-attribution-flag path:nth-child(2) { fill: #0039a6 !important; }
+.leaflet-attribution-flag path:nth-child(3) { fill: #d52b1e !important; }
+
 html, body {
   margin: 0;
   padding: 0;
@@ -297,6 +304,30 @@ html, body {
   color: var(--text-dim);
   border-top: 1px solid var(--panel-border);
   padding-top: 8px;
+}
+.detail-source a {
+  color: var(--text-dim);
+  text-decoration: underline;
+}
+.detail-source a:hover {
+  color: var(--text);
+}
+
+.proof-link {
+  display: block;
+  margin-top: 10px;
+  padding: 9px 12px;
+  background: var(--accent-dim);
+  color: var(--text);
+  text-align: center;
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+.proof-link:hover {
+  background: var(--accent);
 }
 
 .leaflet-popup-content-wrapper {

@@ -284,7 +284,15 @@ function openDetail(incident) {
       <span class="label">${isDrone ? 'Статус / последствия' : 'Статус расследования'}</span>
       ${incident.status}
     </div>
-    <div class="detail-source">Источник: ${incident.source}</div>
+    <div class="detail-source">
+      Источник: ${incident.sourceUrl
+        ? `<a href="${incident.sourceUrl}" target="_blank" rel="noopener noreferrer">${incident.source}</a>`
+        : incident.source}
+    </div>
+    ${incident.sourceUrl ? `
+    <a class="proof-link" href="${incident.sourceUrl}" target="_blank" rel="noopener noreferrer">
+      📄 Открыть новость-первоисточник →
+    </a>` : ''}
   `;
   detailPanel.classList.remove('hidden');
 }
@@ -394,6 +402,7 @@ function mergeDroneStrikes(data) {
       status: s.status,
       description: s.description,
       source: s.source,
+      sourceUrl: s.sourceUrl,
       target: s.target,
     });
     added = true;
@@ -498,6 +507,7 @@ function mergeDroneAggregate(data) {
         status: 'Агрегированная сводка ПВО, не точечный инцидент',
         description: `По сводке Минобороны, в эту ночь ${countText}${totalText}. Точка на карте — не место падения, а условное положение около центра региона (см. пояснение слоя).`,
         source: 'Сводки Минобороны РФ (пересказ СМИ)',
+        sourceUrl: night.sourceUrl,
         target: null,
       });
       added = true;

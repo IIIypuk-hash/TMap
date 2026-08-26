@@ -1,317 +1,1225 @@
 {
-  "generated_at": "2026-08-25T14:55:00Z",
+  "generated_at": "2026-08-26T13:04:33Z",
   "note": "Ежесуточные сводки Минобороны РФ о перехваченных БПЛА, агрегированные по регионам. Один маркер = один регион за одну ночь (без точки падения — только сам факт, что над регионом отражалась атака). Национальный итог за ночь и список регионов иногда расходятся между вторичными источниками, пересказывающими одну и ту же сводку — использована наиболее подробная/часто цитируемая версия. Число сбитых БПЛА по конкретному региону указано только там, где источник его называет явно (поле count); в остальных случаях count = null, и маркер означает только сам факт атаки на регион в эту ночь, без точной цифры.",
   "nights": [
-    { "date": "2026-08-01", "national_total": 274, "regions": [
-      {"region": "Ростовская область", "count": null},
-      {"region": "Воронежская область", "count": null},
-      {"region": "Белгородская область", "count": null},
-      {"region": "Республика Крым", "count": null},
-      {"region": "Московский регион", "count": null}
-    ]},
-    { "date": "2026-08-02", "national_total": 245, "regions": [
-      {"region": "Белгородская область", "count": null},
-      {"region": "Брянская область", "count": null},
-      {"region": "Волгоградская область", "count": null},
-      {"region": "Воронежская область", "count": null},
-      {"region": "Калужская область", "count": null},
-      {"region": "Курская область", "count": null},
-      {"region": "Липецкая область", "count": null},
-      {"region": "Орловская область", "count": null},
-      {"region": "Ростовская область", "count": null},
-      {"region": "Рязанская область", "count": null},
-      {"region": "Саратовская область", "count": null},
-      {"region": "Тамбовская область", "count": null},
-      {"region": "Тульская область", "count": null},
-      {"region": "Московский регион", "count": null}
-    ]},
-    { "date": "2026-08-03", "national_total": 131, "regions": [
-      {"region": "Краснодарский край", "count": null},
-      {"region": "Белгородская область", "count": null},
-      {"region": "Владимирская область", "count": null},
-      {"region": "Вологодская область", "count": null}
-    ]},
-    { "date": "2026-08-04", "national_total": 320, "regions": [
-      {"region": "Белгородская область", "count": null},
-      {"region": "Брянская область", "count": null},
-      {"region": "Волгоградская область", "count": null},
-      {"region": "Воронежская область", "count": null},
-      {"region": "Калужская область", "count": null},
-      {"region": "Курская область", "count": null},
-      {"region": "Ленинградская область", "count": null},
-      {"region": "Липецкая область", "count": null},
-      {"region": "Нижегородская область", "count": null},
-      {"region": "Новгородская область", "count": null},
-      {"region": "Орловская область", "count": null},
-      {"region": "Псковская область", "count": null},
-      {"region": "Ростовская область", "count": null},
-      {"region": "Рязанская область", "count": null},
-      {"region": "Смоленская область", "count": null},
-      {"region": "Тверская область", "count": null},
-      {"region": "Тульская область", "count": null},
-      {"region": "Московский регион", "count": null},
-      {"region": "Республика Крым", "count": null}
-    ]},
-    { "date": "2026-08-05", "national_total": 475, "regions": [
-      {"region": "Тульская область", "count": 107},
-      {"region": "Московский регион", "count": null},
-      {"region": "Ростовская область", "count": null},
-      {"region": "Калужская область", "count": null}
-    ]},
-    { "date": "2026-08-06", "national_total": 605, "regions": [
-      {"region": "Белгородская область", "count": null},
-      {"region": "Брянская область", "count": null},
-      {"region": "Владимирская область", "count": null},
-      {"region": "Воронежская область", "count": 57},
-      {"region": "Калужская область", "count": null},
-      {"region": "Курская область", "count": null},
-      {"region": "Липецкая область", "count": null},
-      {"region": "Нижегородская область", "count": null},
-      {"region": "Орловская область", "count": null},
-      {"region": "Ростовская область", "count": null},
-      {"region": "Рязанская область", "count": null},
-      {"region": "Смоленская область", "count": null},
-      {"region": "Тамбовская область", "count": null},
-      {"region": "Тверская область", "count": null},
-      {"region": "Тульская область", "count": null},
-      {"region": "Ярославская область", "count": 92},
-      {"region": "Московский регион", "count": null},
-      {"region": "Краснодарский край", "count": null},
-      {"region": "Республика Крым", "count": null}
-    ]},
-    { "date": "2026-08-07", "national_total": 203, "regions": [
-      {"region": "Ярославская область", "count": 100},
-      {"region": "Тверская область", "count": null},
-      {"region": "Нижегородская область", "count": null}
-    ]},
-    { "date": "2026-08-08", "national_total": 397, "regions": [
-      {"region": "Краснодарский край", "count": null},
-      {"region": "Ростовская область", "count": null}
-    ]},
-    { "date": "2026-08-09", "national_total": 153, "regions": [
-      {"region": "Белгородская область", "count": null},
-      {"region": "Курская область", "count": null},
-      {"region": "Брянская область", "count": null},
-      {"region": "Тульская область", "count": null},
-      {"region": "Липецкая область", "count": null},
-      {"region": "Рязанская область", "count": null},
-      {"region": "Орловская область", "count": null},
-      {"region": "Калужская область", "count": null},
-      {"region": "Московский регион", "count": null},
-      {"region": "Республика Башкортостан", "count": null},
-      {"region": "Республика Крым", "count": null}
-    ]},
-    { "date": "2026-08-10", "national_total": 456, "regions": [
-      {"region": "Брянская область", "count": null},
-      {"region": "Курская область", "count": null},
-      {"region": "Калужская область", "count": null},
-      {"region": "Тульская область", "count": null},
-      {"region": "Белгородская область", "count": null},
-      {"region": "Орловская область", "count": null},
-      {"region": "Воронежская область", "count": null},
-      {"region": "Ростовская область", "count": null},
-      {"region": "Пензенская область", "count": null},
-      {"region": "Ульяновская область", "count": null},
-      {"region": "Саратовская область", "count": null},
-      {"region": "Оренбургская область", "count": null},
-      {"region": "Самарская область", "count": null},
-      {"region": "Московский регион", "count": null},
-      {"region": "Краснодарский край", "count": null},
-      {"region": "Республика Татарстан", "count": null},
-      {"region": "Республика Крым", "count": null}
-    ]},
-    { "date": "2026-08-11", "national_total": 396, "regions": [
-      {"region": "Белгородская область", "count": null},
-      {"region": "Брянская область", "count": null},
-      {"region": "Владимирская область", "count": null},
-      {"region": "Воронежская область", "count": null},
-      {"region": "Калужская область", "count": null},
-      {"region": "Курская область", "count": null},
-      {"region": "Липецкая область", "count": null},
-      {"region": "Оренбургская область", "count": null},
-      {"region": "Орловская область", "count": null},
-      {"region": "Ростовская область", "count": null},
-      {"region": "Рязанская область", "count": null},
-      {"region": "Тамбовская область", "count": null},
-      {"region": "Тульская область", "count": null},
-      {"region": "Московский регион", "count": 237},
-      {"region": "Республика Крым", "count": null}
-    ]},
-    { "date": "2026-08-12", "national_total": 502, "regions": [
-      {"region": "Краснодарский край", "count": null},
-      {"region": "Республика Крым", "count": null}
-    ]},
-    { "date": "2026-08-13", "national_total": 362, "regions": [
-      {"region": "Белгородская область", "count": null},
-      {"region": "Брянская область", "count": null},
-      {"region": "Воронежская область", "count": null},
-      {"region": "Калужская область", "count": null},
-      {"region": "Курская область", "count": null},
-      {"region": "Орловская область", "count": null},
-      {"region": "Рязанская область", "count": null},
-      {"region": "Тульская область", "count": null},
-      {"region": "Ульяновская область", "count": null},
-      {"region": "Московский регион", "count": null},
-      {"region": "Оренбургская область", "count": null},
-      {"region": "Пензенская область", "count": null},
-      {"region": "Ростовская область", "count": null},
-      {"region": "Самарская область", "count": null},
-      {"region": "Республика Башкортостан", "count": null},
-      {"region": "Республика Крым", "count": null},
-      {"region": "Республика Татарстан", "count": null},
-      {"region": "Краснодарский край", "count": null}
-    ]},
-    { "date": "2026-08-14", "national_total": null, "regions": [
-      {"region": "Ленинградская область", "count": 37},
-      {"region": "Калужская область", "count": null},
-      {"region": "Ярославская область", "count": null},
-      {"region": "Псковская область", "count": null}
-    ]},
-    { "date": "2026-08-15", "national_total": 598, "regions": [
-      {"region": "Белгородская область", "count": null},
-      {"region": "Брянская область", "count": null},
-      {"region": "Владимирская область", "count": null},
-      {"region": "Воронежская область", "count": null},
-      {"region": "Калужская область", "count": null},
-      {"region": "Курская область", "count": null},
-      {"region": "Ленинградская область", "count": null},
-      {"region": "Липецкая область", "count": null},
-      {"region": "Нижегородская область", "count": null},
-      {"region": "Новгородская область", "count": null},
-      {"region": "Орловская область", "count": null},
-      {"region": "Псковская область", "count": null},
-      {"region": "Ростовская область", "count": null},
-      {"region": "Рязанская область", "count": null},
-      {"region": "Смоленская область", "count": null},
-      {"region": "Тверская область", "count": null},
-      {"region": "Тульская область", "count": null},
-      {"region": "Московский регион", "count": null},
-      {"region": "Краснодарский край", "count": null},
-      {"region": "Республика Крым", "count": null}
-    ]},
-    { "date": "2026-08-16", "national_total": 822, "regions": [
-      {"region": "Белгородская область", "count": null},
-      {"region": "Брянская область", "count": null},
-      {"region": "Владимирская область", "count": null},
-      {"region": "Волгоградская область", "count": null},
-      {"region": "Воронежская область", "count": null},
-      {"region": "Калужская область", "count": null},
-      {"region": "Курская область", "count": null},
-      {"region": "Липецкая область", "count": null},
-      {"region": "Нижегородская область", "count": null},
-      {"region": "Орловская область", "count": null},
-      {"region": "Ростовская область", "count": null},
-      {"region": "Рязанская область", "count": null},
-      {"region": "Тамбовская область", "count": null},
-      {"region": "Тульская область", "count": null},
-      {"region": "Московский регион", "count": 187},
-      {"region": "Краснодарский край", "count": null},
-      {"region": "Республика Крым", "count": null}
-    ]},
-    { "date": "2026-08-17", "national_total": 205, "regions": [
-      {"region": "Республика Крым", "count": null},
-      {"region": "Астраханская область", "count": null},
-      {"region": "Белгородская область", "count": null},
-      {"region": "Брянская область", "count": null},
-      {"region": "Воронежская область", "count": null},
-      {"region": "Волгоградская область", "count": null},
-      {"region": "Калужская область", "count": null},
-      {"region": "Курская область", "count": null},
-      {"region": "Ростовская область", "count": null}
-    ]},
-    { "date": "2026-08-18", "national_total": 791, "regions": [
-      {"region": "Белгородская область", "count": null},
-      {"region": "Брянская область", "count": null},
-      {"region": "Курская область", "count": null},
-      {"region": "Тульская область", "count": null},
-      {"region": "Краснодарский край", "count": null},
-      {"region": "Республика Адыгея", "count": null},
-      {"region": "Республика Крым", "count": null},
-      {"region": "Московский регион", "count": 90}
-    ]},
-    { "date": "2026-08-19", "national_total": 453, "regions": [
-      {"region": "Белгородская область", "count": null},
-      {"region": "Республика Башкортостан", "count": null},
-      {"region": "Московский регион", "count": 21},
-      {"region": "Республика Крым", "count": 13}
-    ]},
-    { "date": "2026-08-20", "national_total": 726, "regions": [
-      {"region": "Московский регион", "count": 28},
-      {"region": "Ростовская область", "count": 90},
-      {"region": "Калужская область", "count": 12},
-      {"region": "Ульяновская область", "count": 11},
-      {"region": "Брянская область", "count": 307},
-      {"region": "Курская область", "count": 239}
-    ]},
-    { "date": "2026-08-21", "national_total": 325, "regions": [
-      {"region": "Астраханская область", "count": null},
-      {"region": "Белгородская область", "count": null},
-      {"region": "Брянская область", "count": null},
-      {"region": "Волгоградская область", "count": null},
-      {"region": "Воронежская область", "count": null},
-      {"region": "Калужская область", "count": null},
-      {"region": "Курская область", "count": null},
-      {"region": "Орловская область", "count": null},
-      {"region": "Ростовская область", "count": null},
-      {"region": "Рязанская область", "count": null},
-      {"region": "Тульская область", "count": 8},
-      {"region": "Московский регион", "count": 7},
-      {"region": "Республика Крым", "count": null},
-      {"region": "Удмуртская Республика", "count": null},
-      {"region": "Краснодарский край", "count": null},
-      {"region": "Пермский край", "count": null}
-    ]},
-    { "date": "2026-08-22", "national_total": 457, "regions": [
-      {"region": "Белгородская область", "count": null},
-      {"region": "Брянская область", "count": null},
-      {"region": "Волгоградская область", "count": null},
-      {"region": "Воронежская область", "count": null},
-      {"region": "Курская область", "count": null},
-      {"region": "Ростовская область", "count": null},
-      {"region": "Саратовская область", "count": null},
-      {"region": "Самарская область", "count": null},
-      {"region": "Ульяновская область", "count": null},
-      {"region": "Орловская область", "count": null},
-      {"region": "Калужская область", "count": null},
-      {"region": "Тульская область", "count": null},
-      {"region": "Тамбовская область", "count": null},
-      {"region": "Кировская область", "count": null},
-      {"region": "Краснодарский край", "count": null},
-      {"region": "Республика Крым", "count": null}
-    ]},
-    { "date": "2026-08-23", "national_total": 328, "regions": [
-      {"region": "Белгородская область", "count": null},
-      {"region": "Брянская область", "count": null},
-      {"region": "Волгоградская область", "count": null},
-      {"region": "Воронежская область", "count": null},
-      {"region": "Калужская область", "count": null},
-      {"region": "Курская область", "count": null},
-      {"region": "Липецкая область", "count": null},
-      {"region": "Оренбургская область", "count": null},
-      {"region": "Орловская область", "count": null},
-      {"region": "Ростовская область", "count": null},
-      {"region": "Рязанская область", "count": null},
-      {"region": "Саратовская область", "count": null},
-      {"region": "Смоленская область", "count": null},
-      {"region": "Тверская область", "count": null},
-      {"region": "Тульская область", "count": null},
-      {"region": "Московский регион", "count": null},
-      {"region": "Краснодарский край", "count": null}
-    ]},
-    { "date": "2026-08-24", "national_total": 351, "regions": [
-      {"region": "Республика Крым", "count": null},
-      {"region": "Республика Адыгея", "count": null},
-      {"region": "Краснодарский край", "count": null},
-      {"region": "Ставропольский край", "count": null},
-      {"region": "Астраханская область", "count": null},
-      {"region": "Белгородская область", "count": null},
-      {"region": "Брянская область", "count": null},
-      {"region": "Курская область", "count": null},
-      {"region": "Ростовская область", "count": null}
-    ]},
-    { "date": "2026-08-25", "national_total": 148, "regions": [
-      {"region": "Краснодарский край", "count": null},
-      {"region": "Ростовская область", "count": null}
-    ]}
+    {
+      "date": "2026-08-01",
+      "national_total": 274,
+      "regions": [
+        {
+          "region": "Ростовская область",
+          "count": null
+        },
+        {
+          "region": "Воронежская область",
+          "count": null
+        },
+        {
+          "region": "Белгородская область",
+          "count": null
+        },
+        {
+          "region": "Республика Крым",
+          "count": null
+        },
+        {
+          "region": "Московский регион",
+          "count": null
+        }
+      ],
+      "sourceUrl": "https://www.ptoday.ru/13767-ataki-bpla-na-rossiju-v-noch-na-1-avgusta-po-kakim-regionam-udarili-ukrainskie-bespilotniki-poslednie-novosti-o-nalete-v-subbotu.html"
+    },
+    {
+      "date": "2026-08-02",
+      "national_total": 245,
+      "regions": [
+        {
+          "region": "Белгородская область",
+          "count": null
+        },
+        {
+          "region": "Брянская область",
+          "count": null
+        },
+        {
+          "region": "Волгоградская область",
+          "count": null
+        },
+        {
+          "region": "Воронежская область",
+          "count": null
+        },
+        {
+          "region": "Калужская область",
+          "count": null
+        },
+        {
+          "region": "Курская область",
+          "count": null
+        },
+        {
+          "region": "Липецкая область",
+          "count": null
+        },
+        {
+          "region": "Орловская область",
+          "count": null
+        },
+        {
+          "region": "Ростовская область",
+          "count": null
+        },
+        {
+          "region": "Рязанская область",
+          "count": null
+        },
+        {
+          "region": "Саратовская область",
+          "count": null
+        },
+        {
+          "region": "Тамбовская область",
+          "count": null
+        },
+        {
+          "region": "Тульская область",
+          "count": null
+        },
+        {
+          "region": "Московский регион",
+          "count": null
+        }
+      ],
+      "sourceUrl": "https://lenta.ru/news/2026/08/02/minoborony-opublikovalo-zayavlenie-o-nochnoy-atake-vsu/"
+    },
+    {
+      "date": "2026-08-03",
+      "national_total": 131,
+      "regions": [
+        {
+          "region": "Краснодарский край",
+          "count": null
+        },
+        {
+          "region": "Белгородская область",
+          "count": null
+        },
+        {
+          "region": "Владимирская область",
+          "count": null
+        },
+        {
+          "region": "Вологодская область",
+          "count": null
+        }
+      ],
+      "sourceUrl": "https://www.ptoday.ru/13823-ataka-dronov-na-regiony-rossii-3-avgusta-2026-gde-rabotala-pvo-i-kakovy-posledstvija.html"
+    },
+    {
+      "date": "2026-08-04",
+      "national_total": 320,
+      "regions": [
+        {
+          "region": "Белгородская область",
+          "count": null
+        },
+        {
+          "region": "Брянская область",
+          "count": null
+        },
+        {
+          "region": "Волгоградская область",
+          "count": null
+        },
+        {
+          "region": "Воронежская область",
+          "count": null
+        },
+        {
+          "region": "Калужская область",
+          "count": null
+        },
+        {
+          "region": "Курская область",
+          "count": null
+        },
+        {
+          "region": "Ленинградская область",
+          "count": null
+        },
+        {
+          "region": "Липецкая область",
+          "count": null
+        },
+        {
+          "region": "Нижегородская область",
+          "count": null
+        },
+        {
+          "region": "Новгородская область",
+          "count": null
+        },
+        {
+          "region": "Орловская область",
+          "count": null
+        },
+        {
+          "region": "Псковская область",
+          "count": null
+        },
+        {
+          "region": "Ростовская область",
+          "count": null
+        },
+        {
+          "region": "Рязанская область",
+          "count": null
+        },
+        {
+          "region": "Смоленская область",
+          "count": null
+        },
+        {
+          "region": "Тверская область",
+          "count": null
+        },
+        {
+          "region": "Тульская область",
+          "count": null
+        },
+        {
+          "region": "Московский регион",
+          "count": null
+        },
+        {
+          "region": "Республика Крым",
+          "count": null
+        }
+      ],
+      "sourceUrl": "https://www.fontanka.ru/2026/08/04/76569193/"
+    },
+    {
+      "date": "2026-08-05",
+      "national_total": 475,
+      "regions": [
+        {
+          "region": "Тульская область",
+          "count": 107
+        },
+        {
+          "region": "Московский регион",
+          "count": null
+        },
+        {
+          "region": "Ростовская область",
+          "count": null
+        },
+        {
+          "region": "Калужская область",
+          "count": null
+        }
+      ],
+      "sourceUrl": "https://www.ptoday.ru/13883-massirovannaja-ataka-bpla-v-noch-na-5-avgusta-nad-rossiej-unichtozheno-475-dronov-nazvany-postradavshie-regiony.html"
+    },
+    {
+      "date": "2026-08-06",
+      "national_total": 605,
+      "regions": [
+        {
+          "region": "Белгородская область",
+          "count": null
+        },
+        {
+          "region": "Брянская область",
+          "count": null
+        },
+        {
+          "region": "Владимирская область",
+          "count": null
+        },
+        {
+          "region": "Воронежская область",
+          "count": 57
+        },
+        {
+          "region": "Калужская область",
+          "count": null
+        },
+        {
+          "region": "Курская область",
+          "count": null
+        },
+        {
+          "region": "Липецкая область",
+          "count": null
+        },
+        {
+          "region": "Нижегородская область",
+          "count": null
+        },
+        {
+          "region": "Орловская область",
+          "count": null
+        },
+        {
+          "region": "Ростовская область",
+          "count": null
+        },
+        {
+          "region": "Рязанская область",
+          "count": null
+        },
+        {
+          "region": "Смоленская область",
+          "count": null
+        },
+        {
+          "region": "Тамбовская область",
+          "count": null
+        },
+        {
+          "region": "Тверская область",
+          "count": null
+        },
+        {
+          "region": "Тульская область",
+          "count": null
+        },
+        {
+          "region": "Ярославская область",
+          "count": 92
+        },
+        {
+          "region": "Московский регион",
+          "count": null
+        },
+        {
+          "region": "Краснодарский край",
+          "count": null
+        },
+        {
+          "region": "Республика Крым",
+          "count": null
+        }
+      ],
+      "sourceUrl": "https://www.fontanka.ru/2026/08/06/76573112/"
+    },
+    {
+      "date": "2026-08-07",
+      "national_total": 203,
+      "regions": [
+        {
+          "region": "Ярославская область",
+          "count": 100
+        },
+        {
+          "region": "Тверская область",
+          "count": null
+        },
+        {
+          "region": "Нижегородская область",
+          "count": null
+        }
+      ],
+      "sourceUrl": "https://www.fontanka.ru/2026/08/07/76575174/"
+    },
+    {
+      "date": "2026-08-08",
+      "national_total": 397,
+      "regions": [
+        {
+          "region": "Краснодарский край",
+          "count": null
+        },
+        {
+          "region": "Ростовская область",
+          "count": null
+        }
+      ],
+      "sourceUrl": "https://iz.ru/2145898/2026-08-08/sily-pvo-unichtozhili-397-bpla-nad-regionami-rossii-za-noch"
+    },
+    {
+      "date": "2026-08-09",
+      "national_total": 153,
+      "regions": [
+        {
+          "region": "Белгородская область",
+          "count": null
+        },
+        {
+          "region": "Курская область",
+          "count": null
+        },
+        {
+          "region": "Брянская область",
+          "count": null
+        },
+        {
+          "region": "Тульская область",
+          "count": null
+        },
+        {
+          "region": "Липецкая область",
+          "count": null
+        },
+        {
+          "region": "Рязанская область",
+          "count": null
+        },
+        {
+          "region": "Орловская область",
+          "count": null
+        },
+        {
+          "region": "Калужская область",
+          "count": null
+        },
+        {
+          "region": "Московский регион",
+          "count": null
+        },
+        {
+          "region": "Республика Башкортостан",
+          "count": null
+        },
+        {
+          "region": "Республика Крым",
+          "count": null
+        }
+      ],
+      "sourceUrl": "https://lenta.ru/news/2026/08/09/minoborony-soobschilo-ob-otrazhenii-nochnoy-ataki-bpla-vsu/"
+    },
+    {
+      "date": "2026-08-10",
+      "national_total": 456,
+      "regions": [
+        {
+          "region": "Брянская область",
+          "count": null
+        },
+        {
+          "region": "Курская область",
+          "count": null
+        },
+        {
+          "region": "Калужская область",
+          "count": null
+        },
+        {
+          "region": "Тульская область",
+          "count": null
+        },
+        {
+          "region": "Белгородская область",
+          "count": null
+        },
+        {
+          "region": "Орловская область",
+          "count": null
+        },
+        {
+          "region": "Воронежская область",
+          "count": null
+        },
+        {
+          "region": "Ростовская область",
+          "count": null
+        },
+        {
+          "region": "Пензенская область",
+          "count": null
+        },
+        {
+          "region": "Ульяновская область",
+          "count": null
+        },
+        {
+          "region": "Саратовская область",
+          "count": null
+        },
+        {
+          "region": "Оренбургская область",
+          "count": null
+        },
+        {
+          "region": "Самарская область",
+          "count": null
+        },
+        {
+          "region": "Московский регион",
+          "count": null
+        },
+        {
+          "region": "Краснодарский край",
+          "count": null
+        },
+        {
+          "region": "Республика Татарстан",
+          "count": null
+        },
+        {
+          "region": "Республика Крым",
+          "count": null
+        }
+      ],
+      "sourceUrl": "https://www.ptoday.ru/13997-pochti-chetyre-sotni-bpla-za-odnu-noch-kakie-regiony-rossii-okazalis-pod-udarom-10-avgusta.html"
+    },
+    {
+      "date": "2026-08-11",
+      "national_total": 396,
+      "regions": [
+        {
+          "region": "Белгородская область",
+          "count": null
+        },
+        {
+          "region": "Брянская область",
+          "count": null
+        },
+        {
+          "region": "Владимирская область",
+          "count": null
+        },
+        {
+          "region": "Воронежская область",
+          "count": null
+        },
+        {
+          "region": "Калужская область",
+          "count": null
+        },
+        {
+          "region": "Курская область",
+          "count": null
+        },
+        {
+          "region": "Липецкая область",
+          "count": null
+        },
+        {
+          "region": "Оренбургская область",
+          "count": null
+        },
+        {
+          "region": "Орловская область",
+          "count": null
+        },
+        {
+          "region": "Ростовская область",
+          "count": null
+        },
+        {
+          "region": "Рязанская область",
+          "count": null
+        },
+        {
+          "region": "Тамбовская область",
+          "count": null
+        },
+        {
+          "region": "Тульская область",
+          "count": null
+        },
+        {
+          "region": "Московский регион",
+          "count": 237
+        },
+        {
+          "region": "Республика Крым",
+          "count": null
+        }
+      ],
+      "sourceUrl": "https://www.fontanka.ru/2026/08/11/76581227/"
+    },
+    {
+      "date": "2026-08-12",
+      "national_total": 502,
+      "regions": [
+        {
+          "region": "Краснодарский край",
+          "count": null
+        },
+        {
+          "region": "Республика Крым",
+          "count": null
+        }
+      ],
+      "sourceUrl": "https://www.ptoday.ru/14075-nochnaja-ataka-bpla-na-rossiju-12-avgusta-pervye-dannye-o-posledstvijah-udarov.html"
+    },
+    {
+      "date": "2026-08-13",
+      "national_total": 362,
+      "regions": [
+        {
+          "region": "Белгородская область",
+          "count": null
+        },
+        {
+          "region": "Брянская область",
+          "count": null
+        },
+        {
+          "region": "Воронежская область",
+          "count": null
+        },
+        {
+          "region": "Калужская область",
+          "count": null
+        },
+        {
+          "region": "Курская область",
+          "count": null
+        },
+        {
+          "region": "Орловская область",
+          "count": null
+        },
+        {
+          "region": "Рязанская область",
+          "count": null
+        },
+        {
+          "region": "Тульская область",
+          "count": null
+        },
+        {
+          "region": "Ульяновская область",
+          "count": null
+        },
+        {
+          "region": "Московский регион",
+          "count": null
+        },
+        {
+          "region": "Оренбургская область",
+          "count": null
+        },
+        {
+          "region": "Пензенская область",
+          "count": null
+        },
+        {
+          "region": "Ростовская область",
+          "count": null
+        },
+        {
+          "region": "Самарская область",
+          "count": null
+        },
+        {
+          "region": "Республика Башкортостан",
+          "count": null
+        },
+        {
+          "region": "Республика Крым",
+          "count": null
+        },
+        {
+          "region": "Республика Татарстан",
+          "count": null
+        },
+        {
+          "region": "Краснодарский край",
+          "count": null
+        }
+      ],
+      "sourceUrl": "https://ria.ru/20260813/pvo-2110600857.html"
+    },
+    {
+      "date": "2026-08-14",
+      "national_total": null,
+      "regions": [
+        {
+          "region": "Ленинградская область",
+          "count": 37
+        },
+        {
+          "region": "Калужская область",
+          "count": null
+        },
+        {
+          "region": "Ярославская область",
+          "count": null
+        },
+        {
+          "region": "Псковская область",
+          "count": null
+        }
+      ],
+      "sourceUrl": "https://www.ptoday.ru/14116-ataka-dronov-vsu-na-rossijskie-regiony-14-avgusta-hronika-nochi-rabota-pvo-i-posledstvija.html"
+    },
+    {
+      "date": "2026-08-15",
+      "national_total": 598,
+      "regions": [
+        {
+          "region": "Белгородская область",
+          "count": null
+        },
+        {
+          "region": "Брянская область",
+          "count": null
+        },
+        {
+          "region": "Владимирская область",
+          "count": null
+        },
+        {
+          "region": "Воронежская область",
+          "count": null
+        },
+        {
+          "region": "Калужская область",
+          "count": null
+        },
+        {
+          "region": "Курская область",
+          "count": null
+        },
+        {
+          "region": "Ленинградская область",
+          "count": null
+        },
+        {
+          "region": "Липецкая область",
+          "count": null
+        },
+        {
+          "region": "Нижегородская область",
+          "count": null
+        },
+        {
+          "region": "Новгородская область",
+          "count": null
+        },
+        {
+          "region": "Орловская область",
+          "count": null
+        },
+        {
+          "region": "Псковская область",
+          "count": null
+        },
+        {
+          "region": "Ростовская область",
+          "count": null
+        },
+        {
+          "region": "Рязанская область",
+          "count": null
+        },
+        {
+          "region": "Смоленская область",
+          "count": null
+        },
+        {
+          "region": "Тверская область",
+          "count": null
+        },
+        {
+          "region": "Тульская область",
+          "count": null
+        },
+        {
+          "region": "Московский регион",
+          "count": null
+        },
+        {
+          "region": "Краснодарский край",
+          "count": null
+        },
+        {
+          "region": "Республика Крым",
+          "count": null
+        }
+      ],
+      "sourceUrl": "https://kazan.aif.ru/incidents/details/sbity-ataka-bpla-i-raket-po-regionam-rf-15-avgusta-ranennye-i-povrezhdeniya"
+    },
+    {
+      "date": "2026-08-16",
+      "national_total": 822,
+      "regions": [
+        {
+          "region": "Белгородская область",
+          "count": null
+        },
+        {
+          "region": "Брянская область",
+          "count": null
+        },
+        {
+          "region": "Владимирская область",
+          "count": null
+        },
+        {
+          "region": "Волгоградская область",
+          "count": null
+        },
+        {
+          "region": "Воронежская область",
+          "count": null
+        },
+        {
+          "region": "Калужская область",
+          "count": null
+        },
+        {
+          "region": "Курская область",
+          "count": null
+        },
+        {
+          "region": "Липецкая область",
+          "count": null
+        },
+        {
+          "region": "Нижегородская область",
+          "count": null
+        },
+        {
+          "region": "Орловская область",
+          "count": null
+        },
+        {
+          "region": "Ростовская область",
+          "count": null
+        },
+        {
+          "region": "Рязанская область",
+          "count": null
+        },
+        {
+          "region": "Тамбовская область",
+          "count": null
+        },
+        {
+          "region": "Тульская область",
+          "count": null
+        },
+        {
+          "region": "Московский регион",
+          "count": 187
+        },
+        {
+          "region": "Краснодарский край",
+          "count": null
+        },
+        {
+          "region": "Республика Крым",
+          "count": null
+        }
+      ],
+      "sourceUrl": "https://www.ptoday.ru/14176-massirovannaja-ataka-bpla-na-rossiju-nochju-16-avgusta-est-pogibshie-i-postradavshie.html"
+    },
+    {
+      "date": "2026-08-17",
+      "national_total": 205,
+      "regions": [
+        {
+          "region": "Республика Крым",
+          "count": null
+        },
+        {
+          "region": "Астраханская область",
+          "count": null
+        },
+        {
+          "region": "Белгородская область",
+          "count": null
+        },
+        {
+          "region": "Брянская область",
+          "count": null
+        },
+        {
+          "region": "Воронежская область",
+          "count": null
+        },
+        {
+          "region": "Волгоградская область",
+          "count": null
+        },
+        {
+          "region": "Калужская область",
+          "count": null
+        },
+        {
+          "region": "Курская область",
+          "count": null
+        },
+        {
+          "region": "Ростовская область",
+          "count": null
+        }
+      ],
+      "sourceUrl": "https://www.m24.ru/news/17082026/931348"
+    },
+    {
+      "date": "2026-08-18",
+      "national_total": 791,
+      "regions": [
+        {
+          "region": "Белгородская область",
+          "count": null
+        },
+        {
+          "region": "Брянская область",
+          "count": null
+        },
+        {
+          "region": "Курская область",
+          "count": null
+        },
+        {
+          "region": "Тульская область",
+          "count": null
+        },
+        {
+          "region": "Краснодарский край",
+          "count": null
+        },
+        {
+          "region": "Республика Адыгея",
+          "count": null
+        },
+        {
+          "region": "Республика Крым",
+          "count": null
+        },
+        {
+          "region": "Московский регион",
+          "count": 90
+        }
+      ],
+      "sourceUrl": "https://www.fontanka.ru/2026/08/18/76593192/"
+    },
+    {
+      "date": "2026-08-19",
+      "national_total": 453,
+      "regions": [
+        {
+          "region": "Белгородская область",
+          "count": null
+        },
+        {
+          "region": "Республика Башкортостан",
+          "count": null
+        },
+        {
+          "region": "Московский регион",
+          "count": 21
+        },
+        {
+          "region": "Республика Крым",
+          "count": 13
+        }
+      ],
+      "sourceUrl": "https://kazan.aif.ru/incidents/details/sotni-dronov-ataka-bpla-po-regionam-rf-19-avgusta-postradali-lyudi"
+    },
+    {
+      "date": "2026-08-20",
+      "national_total": 726,
+      "regions": [
+        {
+          "region": "Московский регион",
+          "count": 28
+        },
+        {
+          "region": "Ростовская область",
+          "count": 90
+        },
+        {
+          "region": "Калужская область",
+          "count": 12
+        },
+        {
+          "region": "Ульяновская область",
+          "count": 11
+        },
+        {
+          "region": "Брянская область",
+          "count": 307
+        },
+        {
+          "region": "Курская область",
+          "count": 239
+        }
+      ],
+      "sourceUrl": "https://kazan.aif.ru/incidents/details/rabota-pvo-ataka-bpla-na-regiony-rf-20-avgusta-ranen-muzhchina-v-ulyanovske"
+    },
+    {
+      "date": "2026-08-21",
+      "national_total": 325,
+      "regions": [
+        {
+          "region": "Астраханская область",
+          "count": null
+        },
+        {
+          "region": "Белгородская область",
+          "count": null
+        },
+        {
+          "region": "Брянская область",
+          "count": null
+        },
+        {
+          "region": "Волгоградская область",
+          "count": null
+        },
+        {
+          "region": "Воронежская область",
+          "count": null
+        },
+        {
+          "region": "Калужская область",
+          "count": null
+        },
+        {
+          "region": "Курская область",
+          "count": null
+        },
+        {
+          "region": "Орловская область",
+          "count": null
+        },
+        {
+          "region": "Ростовская область",
+          "count": null
+        },
+        {
+          "region": "Рязанская область",
+          "count": null
+        },
+        {
+          "region": "Тульская область",
+          "count": 8
+        },
+        {
+          "region": "Московский регион",
+          "count": 7
+        },
+        {
+          "region": "Республика Крым",
+          "count": null
+        },
+        {
+          "region": "Удмуртская Республика",
+          "count": null
+        },
+        {
+          "region": "Краснодарский край",
+          "count": null
+        },
+        {
+          "region": "Пермский край",
+          "count": null
+        }
+      ],
+      "sourceUrl": "https://kazan.aif.ru/incidents/details/sireny-s-utra-ataka-bpla-na-regiony-rf-21-avgusta-sireny-i-vzryvy-v-permi"
+    },
+    {
+      "date": "2026-08-22",
+      "national_total": 457,
+      "regions": [
+        {
+          "region": "Белгородская область",
+          "count": null
+        },
+        {
+          "region": "Брянская область",
+          "count": null
+        },
+        {
+          "region": "Волгоградская область",
+          "count": null
+        },
+        {
+          "region": "Воронежская область",
+          "count": null
+        },
+        {
+          "region": "Курская область",
+          "count": null
+        },
+        {
+          "region": "Ростовская область",
+          "count": null
+        },
+        {
+          "region": "Саратовская область",
+          "count": null
+        },
+        {
+          "region": "Самарская область",
+          "count": null
+        },
+        {
+          "region": "Ульяновская область",
+          "count": null
+        },
+        {
+          "region": "Орловская область",
+          "count": null
+        },
+        {
+          "region": "Калужская область",
+          "count": null
+        },
+        {
+          "region": "Тульская область",
+          "count": null
+        },
+        {
+          "region": "Тамбовская область",
+          "count": null
+        },
+        {
+          "region": "Кировская область",
+          "count": null
+        },
+        {
+          "region": "Краснодарский край",
+          "count": null
+        },
+        {
+          "region": "Республика Крым",
+          "count": null
+        }
+      ],
+      "sourceUrl": "https://yamal-media.ru/news/minoborony-nochju-22-avgusta-pvo-sbila-457-bespilotnikov-nad-17-regionami-rf"
+    },
+    {
+      "date": "2026-08-23",
+      "national_total": 328,
+      "regions": [
+        {
+          "region": "Белгородская область",
+          "count": null
+        },
+        {
+          "region": "Брянская область",
+          "count": null
+        },
+        {
+          "region": "Волгоградская область",
+          "count": null
+        },
+        {
+          "region": "Воронежская область",
+          "count": null
+        },
+        {
+          "region": "Калужская область",
+          "count": null
+        },
+        {
+          "region": "Курская область",
+          "count": null
+        },
+        {
+          "region": "Липецкая область",
+          "count": null
+        },
+        {
+          "region": "Оренбургская область",
+          "count": null
+        },
+        {
+          "region": "Орловская область",
+          "count": null
+        },
+        {
+          "region": "Ростовская область",
+          "count": null
+        },
+        {
+          "region": "Рязанская область",
+          "count": null
+        },
+        {
+          "region": "Саратовская область",
+          "count": null
+        },
+        {
+          "region": "Смоленская область",
+          "count": null
+        },
+        {
+          "region": "Тверская область",
+          "count": null
+        },
+        {
+          "region": "Тульская область",
+          "count": null
+        },
+        {
+          "region": "Московский регион",
+          "count": null
+        },
+        {
+          "region": "Краснодарский край",
+          "count": null
+        }
+      ],
+      "sourceUrl": "https://www.fontanka.ru/2026/08/23/76603120/"
+    },
+    {
+      "date": "2026-08-24",
+      "national_total": 351,
+      "regions": [
+        {
+          "region": "Республика Крым",
+          "count": null
+        },
+        {
+          "region": "Республика Адыгея",
+          "count": null
+        },
+        {
+          "region": "Краснодарский край",
+          "count": null
+        },
+        {
+          "region": "Ставропольский край",
+          "count": null
+        },
+        {
+          "region": "Астраханская область",
+          "count": null
+        },
+        {
+          "region": "Белгородская область",
+          "count": null
+        },
+        {
+          "region": "Брянская область",
+          "count": null
+        },
+        {
+          "region": "Курская область",
+          "count": null
+        },
+        {
+          "region": "Ростовская область",
+          "count": null
+        }
+      ],
+      "sourceUrl": "https://kazan.aif.ru/incidents/details/pogibli-deti-ataka-bpla-na-regiony-rf-24-avgusta-351-dron-sklady-ozon"
+    },
+    {
+      "date": "2026-08-25",
+      "national_total": 148,
+      "regions": [
+        {
+          "region": "Краснодарский край",
+          "count": null
+        },
+        {
+          "region": "Ростовская область",
+          "count": null
+        }
+      ],
+      "sourceUrl": "https://kazan.aif.ru/incidents/details/nochnoy-nalyot-ataka-bpla-na-regiony-rf-25-avgusta-dvoe-pogibshih-na-kubani"
+    }
   ]
 }
