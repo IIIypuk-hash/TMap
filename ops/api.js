@@ -72,7 +72,10 @@ async function apiFetch(path, options = {}) {
     throw new Error("Не удалось связаться с сервером: " + e.message);
   }
 
-  if (resp.status === 401) {
+  // 401 на /auth/login — это просто неверный логин/пароль, а не истекшая
+  // сессия (токена ещё и не было). Для остальных запросов 401 означает,
+  // что токен протух/невалиден — разлогиниваем и уводим на вход.
+  if (resp.status === 401 && path !== "/auth/login") {
     clearSession();
     if (!location.pathname.endsWith("login.html")) {
       window.location.href = "login.html";
