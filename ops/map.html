@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Карта дел — TMap</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="ops.css">
+</head>
+<body>
+
+<nav id="opsNav" class="ops-nav"></nav>
+
+<div class="map-shell">
+  <aside class="map-sidebar">
+    <div class="filter-row">
+      <select id="statusFilter">
+        <option value="">Статус: все</option>
+        <option value="open">Открытые</option>
+        <option value="closed">Закрытые</option>
+      </select>
+      <select id="categoryFilter">
+        <option value="">Категория: все</option>
+      </select>
+    </div>
+    <div id="caseList"></div>
+    <p class="mini-note" id="listEmpty" style="display:none;">Дел не найдено.</p>
+  </aside>
+
+  <main class="map-area">
+    <div id="opsMap"></div>
+
+    <aside id="detailPanel" class="detail-panel hidden">
+      <button id="closeDetail" class="close-btn" aria-label="Закрыть">×</button>
+      <div id="detailContent"></div>
+    </aside>
+  </main>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="api.js"></script>
+<script>
+// Константы категорий (CATEGORY_LABELS/CATEGORY_COLORS) — общие, см. api.js.
+
+let currentUser = null;
+let allCases = [];
+let markers = new Map(); // case_id -> L.Marker
+let selectedCaseId = null;
+let placingModeCaseId = null; // если не null — следующий клик по карте ставит точку этому делу
+
+const map = L.map("opsMap").setView([61, 60], 4);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  maxZoom: 18,
+  attribution: "&copy; OpenStreetMap",
+}).addTo(map);
+
+map.on("click", async (e) => {
+  if (placingModeCaseId == null) return;
+  const caseId = placingModeCaseId;
+  placingModeCaseId = null;
+  document.body.style.cursor = "";
+  try {
+    await apiFetch(`/cases/${caseId}/location`, {
+      method: "PUT",
+      body: { lat: e.latlng.lat, lon: e.latlng.lng },
+    });
+    await reloadCases();
+    openCaseDetail(caseId);
+  } catch (err) {
+    alert("Не удалось сохранить точку: " + err.message);
+  }
+});
+
+(async () => {
+  currentUser = await requireAuth(["commander", "staff", "admin"]);
+  renderNav(currentUser, "map");
+
+  const categorySelect = document.getElementById("categoryFilter");
+  for (const [key, label] of Object.entries(CATEGORY_LABELS)) {
+    const opt = document.createElement("option");
+    opt.value = key;
+    opt.textContent = label;
+    categorySelect.appendChild(opt);
+  }
+
+  document.getElementById("statusFilter").addEventListener("change", renderCaseList);
+  document.getElementById("categoryFilter").addEventListener("change", renderCaseList);
+  document.getElementById("closeDetail").addEventListener("click", closeCaseDetail);
+
+  await reloadCases();
+})();
+
+async function reloadCases() {
+  allCases = await apiFetch("/cases");
+  renderCaseList();
+}
+
+function filteredCases() {
+  const status = document.getElementById("statusFilter").value;
+  const category = document.getElementById("categoryFilter").value;
+  return allCases.filter(
+    (c) => (!status || c.status === status) && (!category || c.category === category)
+  );
+}
+
+function renderCaseList() {
+  const list = document.getElementById("caseList");
+  const cases = filteredCases();
+
+  list.innerHTML = "";
+  document.getElementById("listEmpty").style.display = cases.length ? "none" : "block";
+
+  for (const c of cases) {
+    const item = document.createElement("div");
+    item.className = "case-list-item" + (c.id === selectedCaseId ? " selected" : "");
+    item.innerHTML = `
+      <div class="case-title">#${c.id} · ${escapeHtml(c.title)}</div>
+      <div class="case-meta">
+        <span>${escapeHtml(c.unit_name)}</span>
+        <span>${new Date(c.created_at).toLocaleString("ru-RU")}</span>
+      </div>
+    `;
+    item.addEventListener("click", () => openCaseDetail(c.id));
+    list.appendChild(item);
+  }
+
+  renderMarkers(cases);
+}
+
+function renderMarkers(cases) {
+  for (const marker of markers.values()) map.removeLayer(marker);
+  markers.clear();
+
+  const withCoords = cases.filter((c) => c.lat != null && c.lon != null);
+  for (const c of withCoords) {
+    const color = CATEGORY_COLORS[c.category] || CATEGORY_COLORS.other;
+    const marker = L.circleMarker([c.lat, c.lon], {
+      radius: 8,
+      color: c.needs_manual_location ? "#d99a2b" : color,
+      weight: c.needs_manual_location ? 3 : 2,
+      dashArray: c.needs_manual_location ? "4,3" : null,
+      fillColor: color,
+      fillOpacity: c.status === "closed" ? 0.35 : 0.85,
+    }).addTo(map);
+    marker.bindTooltip(`#${c.id} · ${c.title}`);
+    marker.on("click", () => openCaseDetail(c.id));
+    markers.set(c.id, marker);
+  }
+
+  if (withCoords.length && selectedCaseId == null) {
+    const bounds = L.latLngBounds(withCoords.map((c) => [c.lat, c.lon]));
+    map.fitBounds(bounds, { padding: [40, 40], maxZoom: 12 });
+  }
+}
+
+async function openCaseDetail(caseId) {
+  selectedCaseId = caseId;
+  renderCaseList();
+
+  const panel = document.getElementById("detailPanel");
+  const content = document.getElementById("detailContent");
+  panel.classList.remove("hidden");
+  content.innerHTML = "<p class=\"mini-note\">Загрузка…</p>";
+
+  let detail;
+  try {
+    detail = await apiFetch(`/cases/${caseId}`);
+  } catch (err) {
+    content.innerHTML = `<div class="msg msg-error">${escapeHtml(err.message)}</div>`;
+    return;
+  }
+
+  const marker = markers.get(caseId);
+  if (marker) map.panTo(marker.getLatLng());
+
+  const statusBadgeClass = detail.status === "open" ? "badge-open" : "badge";
+  const statusLabel = detail.status === "open" ? "Открыто" : "Закрыто";
+  const nextStatus = detail.status === "open" ? "closed" : "open";
+  const nextStatusLabel = detail.status === "open" ? "Закрыть дело" : "Открыть заново";
+
+  const locationHint = detail.needs_manual_location
+    ? `<div class="place-hint">⚠ Координаты определены приблизительно (или не определены). Нажмите «Указать точку на карте» и кликните по нужному месту.</div>`
+    : "";
+
+  content.innerHTML = `
+    <h2 style="margin:4px 30px 6px 0;">#${detail.id} · ${escapeHtml(detail.title)}</h2>
+    <span class="badge ${statusBadgeClass}">${statusLabel}</span>
+    <span class="badge" style="background:${CATEGORY_COLORS[detail.category] || CATEGORY_COLORS.other};margin-left:6px;">
+      ${CATEGORY_LABELS[detail.category] || detail.category || "—"}
+    </span>
+
+    <p class="mini-note" style="margin-top:10px;">
+      Отделение: ${escapeHtml(detail.unit_name)} · создал: ${escapeHtml(detail.created_by_name)}<br>
+      Место: ${escapeHtml(detail.location_text || "—")}
+    </p>
+
+    ${locationHint}
+
+    <div class="btn-row" style="margin:10px 0 4px;">
+      <button id="placeBtn" class="btn-secondary">Указать точку на карте</button>
+      <button id="toggleStatusBtn" class="btn-secondary">${nextStatusLabel}</button>
+    </div>
+
+    <div id="docsContainer"></div>
+  `;
+
+  document.getElementById("placeBtn").addEventListener("click", () => {
+    placingModeCaseId = caseId;
+    document.body.style.cursor = "crosshair";
+  });
+
+  document.getElementById("toggleStatusBtn").addEventListener("click", async () => {
+    try {
+      await apiFetch(`/cases/${caseId}/status`, { method: "PUT", body: { status: nextStatus } });
+      await reloadCases();
+      openCaseDetail(caseId);
+    } catch (err) {
+      alert("Не удалось изменить статус: " + err.message);
+    }
+  });
+
+  const docsContainer = document.getElementById("docsContainer");
+  for (const doc of detail.documents) {
+    const block = document.createElement("div");
+    block.className = "doc-block";
+    block.innerHTML = `
+      <div class="doc-meta">${escapeHtml(doc.author_name)} · ${new Date(doc.created_at).toLocaleString("ru-RU")}</div>
+      <div class="report-render">${doc.rendered_html}</div>
+    `;
+    docsContainer.appendChild(block);
+  }
+}
+
+function closeCaseDetail() {
+  selectedCaseId = null;
+  placingModeCaseId = null;
+  document.body.style.cursor = "";
+  document.getElementById("detailPanel").classList.add("hidden");
+  renderCaseList();
+}
+</script>
+</body>
+</html>

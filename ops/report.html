@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Подать рапорт — TMap</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="ops.css">
+<style>
+  #miniMap { height: 260px; border-radius: 8px; margin: 8px 0; }
+  .field-block { margin-bottom: 14px; }
+  .field-block textarea { min-height: 70px; }
+  .system-fields-note { font-size: 12px; color: var(--text-dim); background: var(--panel-bg-2); border-radius: 6px; padding: 8px 10px; margin-bottom: 14px; }
+</style>
+</head>
+<body>
+
+<nav id="opsNav" class="ops-nav"></nav>
+
+<div class="ops-shell">
+  <div class="ops-container">
+
+    <!-- Шаг 1: свободный текст -->
+    <div class="card" id="stage1Card">
+      <h2>Новый рапорт</h2>
+      <p class="card-hint">
+        Опишите произошедшее обычным языком — ИИ оформит текст в служебный
+        рапорт по шаблону. Дальше можно будет проверить и поправить всё
+        перед отправкой.
+      </p>
+
+      <div id="msgBoxStage1"></div>
+
+      <form id="stage1Form">
+        <label class="field">
+          <span class="field-label">Прикрепить к делу</span>
+          <select id="caseSelect">
+            <option value="">— Новое дело —</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span class="field-label">Что произошло</span>
+          <textarea id="reportText" placeholder="Например: выехали по адресу ул. Мира 12, сработала пожарная сигнализация, возгорание в подсобке потушено местными силами до прибытия, пострадавших нет..." required></textarea>
+        </label>
+
+        <div class="btn-row">
+          <button type="submit" id="draftBtn" class="btn-primary">Сформировать рапорт</button>
+          <span id="draftStatus" class="mini-note"></span>
+        </div>
+      </form>
+    </div>
+
+    <!-- Шаг 2: проверка и подтверждение черновика -->
+    <div class="card" id="stage2Card" style="display:none;">
+      <h2>Проверьте рапорт перед отправкой</h2>
+      <p class="card-hint">ИИ оформил текст ниже. Поправьте, если нужно, и отправьте.</p>
+
+      <div id="msgBoxStage2"></div>
+
+      <label class="field">
+        <span class="field-label">Заголовок дела</span>
+        <input type="text" id="draftTitle">
+      </label>
+
+      <label class="field">
+        <span class="field-label">Категория</span>
+        <select id="draftCategory"></select>
+      </label>
+
+      <div id="draftFieldsContainer"></div>
+
+      <div class="system-fields-note" id="systemFieldsNote"></div>
+
+      <label class="field">
+        <span class="field-label">Место на карте</span>
+      </label>
+      <div id="locationHint" class="mini-note"></div>
+      <div id="miniMap"></div>
+      <div class="btn-row" style="margin-bottom:14px;">
+        <button type="button" id="resetPointBtn" class="btn-secondary">Сбросить точку</button>
+        <span id="pointStatus" class="mini-note"></span>
+      </div>
+
+      <label class="field">
+        <span class="field-label">Предпросмотр рапорта</span>
+      </label>
+      <div id="draftRender" class="report-render"></div>
+
+      <div class="btn-row" style="margin-top:16px;">
+        <button type="button" id="backBtn" class="btn-secondary">← Назад, изменить текст</button>
+        <button type="button" id="confirmBtn" class="btn-primary">Подтвердить и отправить</button>
+      </div>
+    </div>
+
+    <div id="resultCard" class="card" style="display:none;">
+      <h2>Рапорт отправлен</h2>
+      <p class="card-hint" id="resultMeta"></p>
+      <div id="resultRender" class="report-render"></div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="api.js"></script>
+<script>
+let currentUser = null;
+let draft = null;          // ответ /reports/preview
+let currentFields = {};    // редактируемая копия draft.fields
+let miniMap = null;
+let miniMarker = null;
+let pickedLat = null;
+let pickedLon = null;
+let manualOverride = false; // true, если сотрудник сам кликнул/перетащил точку
+
+(async () => {
+  currentUser = await requireAuth(["employee", "commander", "staff", "admin"]);
+  renderNav(currentUser, "report");
+  await loadMyCases();
+
+  const categorySelect = document.getElementById("draftCategory");
+  for (const [key, label] of Object.entries(CATEGORY_LABELS)) {
+    const opt = document.createElement("option");
+    opt.value = key;
+    opt.textContent = label;
+    categorySelect.appendChild(opt);
+  }
+})();
+
+async function loadMyCases() {
+  const select = document.getElementById("caseSelect");
+  try {
+    const cases = await apiFetch("/cases");
+    for (const c of cases) {
+      const opt = document.createElement("option");
+      opt.value = c.id;
+      opt.textContent = `#${c.id} · ${c.title}`;
+      select.appendChild(opt);
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+// ---------- Шаг 1 → превью ----------
+
+const stage1Form = document.getElementById("stage1Form");
+const msgBoxStage1 = document.getElementById("msgBoxStage1");
+const draftBtn = document.getElementById("draftBtn");
+const draftStatus = document.getElementById("draftStatus");
+
+stage1Form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  msgBoxStage1.innerHTML = "";
+  const text = document.getElementById("reportText").value.trim();
+  const caseId = document.getElementById("caseSelect").value;
+
+  draftBtn.disabled = true;
+  draftStatus.textContent = "ИИ обрабатывает текст, это может занять до минуты…";
+
+  try {
+    draft = await apiFetch("/reports/preview", {
+      method: "POST",
+      body: { text, case_id: caseId ? Number(caseId) : null },
+    });
+    openStage2();
+  } catch (err) {
+    msgBoxStage1.innerHTML = `<div class="msg msg-error">${escapeHtml(err.message)}</div>`;
+  } finally {
+    draftBtn.disabled = false;
+    draftStatus.textContent = "";
+  }
+});
+
+// ---------- Шаг 2: просмотр/правка черновика ----------
+
+function openStage2() {
+  document.getElementById("stage1Card").style.display = "none";
+  document.getElementById("resultCard").style.display = "none";
+  document.getElementById("stage2Card").style.display = "block";
+  document.getElementById("msgBoxStage2").innerHTML = "";
+
+  currentFields = { ...draft.fields };
+  pickedLat = draft.lat;
+  pickedLon = draft.lon;
+  manualOverride = false;
+
+  document.getElementById("draftTitle").value = draft.title;
+  document.getElementById("draftCategory").value = draft.category;
+
+  const sysLines = [];
+  if (currentFields.date) sysLines.push(`Дата: ${currentFields.date}`);
+  if (currentFields.officer_name) sysLines.push(`Составил: ${currentFields.officer_name}`);
+  if (currentFields.unit_name) sysLines.push(`Отделение: ${currentFields.unit_name}`);
+  document.getElementById("systemFieldsNote").textContent =
+    (sysLines.length ? sysLines.join(" · ") + ". " : "") +
+    "Место, определённое ИИ: " + (draft.location_text || "не определено");
+
+  const container = document.getElementById("draftFieldsContainer");
+  container.innerHTML = "";
+  for (const key of Object.keys(draft.fields)) {
+    if (SYSTEM_TEMPLATE_FIELDS.includes(key)) continue;
+    const block = document.createElement("label");
+    block.className = "field field-block";
+    block.innerHTML = `
+      <span class="field-label">${escapeHtml(fieldLabel(key))}</span>
+      <textarea data-field="${escapeHtml(key)}">${escapeHtml(currentFields[key] || "")}</textarea>
+    `;
+    container.appendChild(block);
+  }
+  container.querySelectorAll("textarea[data-field]").forEach((ta) => {
+    ta.addEventListener("input", () => {
+      currentFields[ta.dataset.field] = ta.value;
+      updatePreview();
+    });
+  });
+
+  setupMiniMap();
+  updateLocationHint();
+  updatePreview();
+}
+
+function fieldLabel(key) {
+  return key.replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase());
+}
+
+document.getElementById("draftCategory").addEventListener("change", () => {
+  const category = document.getElementById("draftCategory").value;
+  if ("category_label" in currentFields) {
+    currentFields.category_label = CATEGORY_LABELS[category] || category;
+  }
+  updatePreview();
+});
+
+document.getElementById("draftTitle").addEventListener("input", updatePreview);
+
+function updatePreview() {
+  document.getElementById("draftRender").innerHTML = renderTemplateClient(draft.template_html, currentFields);
+}
+
+// ---------- Мини-карта для точки ----------
+
+function setupMiniMap() {
+  if (!miniMap) {
+    miniMap = L.map("miniMap");
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 18,
+      attribution: "&copy; OpenStreetMap",
+    }).addTo(miniMap);
+    miniMap.on("click", (e) => {
+      manualOverride = true;
+      placeMarker(e.latlng.lat, e.latlng.lng);
+      updateLocationHint();
+    });
+  }
+
+  if (miniMarker) {
+    miniMap.removeLayer(miniMarker);
+    miniMarker = null;
+  }
+
+  if (pickedLat != null && pickedLon != null) {
+    miniMap.setView([pickedLat, pickedLon], 13);
+    placeMarker(pickedLat, pickedLon);
+  } else {
+    miniMap.setView([61, 60], 4);
+  }
+  // Leaflet не всегда правильно считает размеры карты, скрытой в display:none
+  // в момент инициализации — форсируем пересчёт после показа контейнера.
+  setTimeout(() => miniMap.invalidateSize(), 50);
+}
+
+function placeMarker(lat, lon) {
+  pickedLat = lat;
+  pickedLon = lon;
+  if (miniMarker) {
+    miniMarker.setLatLng([lat, lon]);
+  } else {
+    miniMarker = L.marker([lat, lon], { draggable: true }).addTo(miniMap);
+    miniMarker.on("dragend", () => {
+      const pos = miniMarker.getLatLng();
+      manualOverride = true;
+      pickedLat = pos.lat;
+      pickedLon = pos.lng;
+      updateLocationHint();
+    });
+  }
+}
+
+function updateLocationHint() {
+  const hint = document.getElementById("locationHint");
+  const status = document.getElementById("pointStatus");
+  if (pickedLat != null && pickedLon != null) {
+    hint.textContent = manualOverride
+      ? "Точка указана вами вручную — клик по карте или перетаскивание маркера поправит её."
+      : draft.needs_manual_location
+        ? "ИИ предположил примерное место (низкая уверенность) — проверьте и поправьте кликом по карте, если нужно."
+        : "Место определено автоматически по адресу из текста. Можно поправить кликом по карте.";
+    status.textContent = `Координаты: ${pickedLat.toFixed(5)}, ${pickedLon.toFixed(5)}`;
+  } else {
+    hint.textContent = "Место не определено. Кликните по карте, чтобы поставить точку, — или пропустите, тогда её позже поставит командир/штаб.";
+    status.textContent = "Точка не указана.";
+  }
+}
+
+document.getElementById("resetPointBtn").addEventListener("click", () => {
+  manualOverride = false;
+  pickedLat = draft.lat;
+  pickedLon = draft.lon;
+  setupMiniMap();
+  updateLocationHint();
+});
+
+// ---------- Назад ----------
+
+document.getElementById("backBtn").addEventListener("click", () => {
+  document.getElementById("stage2Card").style.display = "none";
+  document.getElementById("stage1Card").style.display = "block";
+});
+
+// ---------- Подтверждение ----------
+
+const confirmBtn = document.getElementById("confirmBtn");
+const msgBoxStage2 = document.getElementById("msgBoxStage2");
+
+confirmBtn.addEventListener("click", async () => {
+  msgBoxStage2.innerHTML = "";
+  confirmBtn.disabled = true;
+
+  const category = document.getElementById("draftCategory").value;
+  const title = document.getElementById("draftTitle").value.trim() || "Без названия";
+
+  // Если сотрудник сам расставил/поправил точку — считаем место подтверждённым.
+  // Иначе сохраняем исходную оценку ИИ как есть (в т.ч. флаг "требует проверки").
+  const finalLat = manualOverride ? pickedLat : draft.lat;
+  const finalLon = manualOverride ? pickedLon : draft.lon;
+  const finalNeedsManual = manualOverride ? false : draft.needs_manual_location;
+
+  try {
+    const detail = await apiFetch("/reports", {
+      method: "POST",
+      body: {
+        template_id: draft.template_id,
+        raw_text: draft.raw_text,
+        fields: currentFields,
+        title,
+        category,
+        location_text: draft.location_text,
+        lat: finalLat,
+        lon: finalLon,
+        needs_manual_location: finalNeedsManual,
+        case_id: draft.case_id,
+      },
+    });
+
+    const lastDoc = detail.documents[detail.documents.length - 1];
+    document.getElementById("resultMeta").textContent =
+      `Дело #${detail.id} · ${detail.title} · отделение «${detail.unit_name}»` +
+      (detail.needs_manual_location ? " · координаты требуют проверки" : "");
+    document.getElementById("resultRender").innerHTML = lastDoc.rendered_html;
+
+    document.getElementById("stage2Card").style.display = "none";
+    document.getElementById("stage1Card").style.display = "block";
+    document.getElementById("resultCard").style.display = "block";
+
+    stage1Form.reset();
+    const select = document.getElementById("caseSelect");
+    select.innerHTML = '<option value="">— Новое дело —</option>';
+    await loadMyCases();
+    select.value = String(detail.id);
+  } catch (err) {
+    msgBoxStage2.innerHTML = `<div class="msg msg-error">${escapeHtml(err.message)}</div>`;
+  } finally {
+    confirmBtn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>

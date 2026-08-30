@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Админка — TMap</title>
+<link rel="stylesheet" href="ops.css">
+</head>
+<body>
+
+<nav id="opsNav" class="ops-nav"></nav>
+
+<div class="ops-shell">
+  <div class="ops-container">
+
+    <!-- Шаблон рапорта -->
+    <div class="card">
+      <h2>Шаблон рапорта</h2>
+      <p class="card-hint">
+        HTML с полями вида <code>{{имя_поля}}</code>. Каждое такое поле ИИ
+        заполнит из текста сотрудника. Системные поля, которые подставляются
+        автоматически (не через ИИ), если использованы в шаблоне:
+        <code>date</code>, <code>officer_name</code>, <code>unit_name</code>,
+        <code>category_label</code>, <code>location</code>.
+      </p>
+
+      <div id="templateMsg"></div>
+
+      <label class="field">
+        <span class="field-label">Название шаблона</span>
+        <input type="text" id="templateName">
+      </label>
+      <label class="field">
+        <span class="field-label">HTML-содержимое</span>
+        <textarea id="templateHtml" style="min-height:260px; font-family: Consolas, monospace; font-size: 13px;"></textarea>
+      </label>
+      <p class="mini-note" id="placeholdersHint"></p>
+
+      <div class="btn-row">
+        <button id="saveTemplateBtn" class="btn-primary">Сохранить шаблон</button>
+      </div>
+    </div>
+
+    <!-- Отделения -->
+    <div class="card">
+      <h2>Отделения</h2>
+      <div id="unitsMsg"></div>
+      <table id="unitsTable">
+        <thead><tr><th>ID</th><th>Название</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div class="btn-row" style="margin-top:12px;">
+        <input type="text" id="newUnitName" placeholder="Название нового отделения" style="max-width:260px;">
+        <button id="addUnitBtn" class="btn-secondary">Добавить отделение</button>
+      </div>
+    </div>
+
+    <!-- Пользователи -->
+    <div class="card">
+      <h2>Пользователи</h2>
+      <div id="usersMsg"></div>
+      <table id="usersTable">
+        <thead><tr><th>Логин</th><th>Имя</th><th>Роль</th><th>Отделение</th><th>Статус</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+
+      <h2 style="margin-top:20px;">Новый пользователь</h2>
+      <div class="two-col">
+        <label class="field">
+          <span class="field-label">Логин</span>
+          <input type="text" id="newUsername">
+        </label>
+        <label class="field">
+          <span class="field-label">Пароль</span>
+          <input type="password" id="newPassword">
+        </label>
+        <label class="field">
+          <span class="field-label">Полное имя</span>
+          <input type="text" id="newFullName">
+        </label>
+        <label class="field">
+          <span class="field-label">Роль</span>
+          <select id="newRole">
+            <option value="employee">Сотрудник</option>
+            <option value="commander">Командир отделения</option>
+            <option value="staff">Штаб</option>
+            <option value="admin">Сисадмин</option>
+          </select>
+        </label>
+        <label class="field">
+          <span class="field-label">Отделение</span>
+          <select id="newUnitId"></select>
+        </label>
+      </div>
+      <div class="btn-row">
+        <button id="addUserBtn" class="btn-primary">Создать пользователя</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="api.js"></script>
+<script>
+let units = [];
+
+(async () => {
+  const user = await requireAuth(["admin"]);
+  renderNav(user, "admin");
+  await Promise.all([loadTemplate(), loadUnits(), loadUsers()]);
+})();
+
+// ---------- Шаблон ----------
+
+function updatePlaceholdersHint() {
+  const html = document.getElementById("templateHtml").value;
+  const found = new Set();
+  for (const m of html.matchAll(/\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g)) found.add(m[1]);
+  document.getElementById("placeholdersHint").textContent = found.size
+    ? "Поля в шаблоне: " + Array.from(found).sort().join(", ")
+    : "В шаблоне нет ни одного поля {{...}}.";
+}
+
+async function loadTemplate() {
+  try {
+    const tpl = await apiFetch("/admin/template");
+    document.getElementById("templateName").value = tpl.name;
+    document.getElementById("templateHtml").value = tpl.html_content;
+  } catch (err) {
+    document.getElementById("templateMsg").innerHTML = `<div class="msg msg-error">${escapeHtml(err.message)}</div>`;
+  }
+  updatePlaceholdersHint();
+}
+
+document.getElementById("templateHtml").addEventListener("input", updatePlaceholdersHint);
+
+document.getElementById("saveTemplateBtn").addEventListener("click", async () => {
+  const msgBox = document.getElementById("templateMsg");
+  msgBox.innerHTML = "";
+  try {
+    await apiFetch("/admin/template", {
+      method: "PUT",
+      body: {
+        name: document.getElementById("templateName").value.trim(),
+        html_content: document.getElementById("templateHtml").value,
+      },
+    });
+    msgBox.innerHTML = `<div class="msg msg-ok">Шаблон сохранён.</div>`;
+  } catch (err) {
+    msgBox.innerHTML = `<div class="msg msg-error">${escapeHtml(err.message)}</div>`;
+  }
+});
+
+// ---------- Отделения ----------
+
+async function loadUnits() {
+  try {
+    units = await apiFetch("/admin/units");
+    const tbody = document.querySelector("#unitsTable tbody");
+    tbody.innerHTML = units.map((u) => `<tr><td>${u.id}</td><td>${escapeHtml(u.name)}</td></tr>`).join("");
+
+    const unitSelect = document.getElementById("newUnitId");
+    unitSelect.innerHTML = units.map((u) => `<option value="${u.id}">${escapeHtml(u.name)}</option>`).join("");
+  } catch (err) {
+    document.getElementById("unitsMsg").innerHTML = `<div class="msg msg-error">${escapeHtml(err.message)}</div>`;
+  }
+}
+
+document.getElementById("addUnitBtn").addEventListener("click", async () => {
+  const msgBox = document.getElementById("unitsMsg");
+  msgBox.innerHTML = "";
+  const name = document.getElementById("newUnitName").value.trim();
+  if (!name) return;
+  try {
+    await apiFetch("/admin/units", { method: "POST", body: { name } });
+    document.getElementById("newUnitName").value = "";
+    await loadUnits();
+  } catch (err) {
+    msgBox.innerHTML = `<div class="msg msg-error">${escapeHtml(err.message)}</div>`;
+  }
+});
+
+// ---------- Пользователи ----------
+
+const ROLE_LABELS_LOCAL = {
+  employee: "Сотрудник",
+  commander: "Командир отделения",
+  staff: "Штаб",
+  admin: "Сисадмин",
+};
+
+async function loadUsers() {
+  try {
+    const list = await apiFetch("/admin/users");
+    const unitById = new Map(units.map((u) => [u.id, u.name]));
+    const tbody = document.querySelector("#usersTable tbody");
+    tbody.innerHTML = list
+      .map(
+        (u) => `
+      <tr>
+        <td>${escapeHtml(u.username)}</td>
+        <td>${escapeHtml(u.full_name)}</td>
+        <td>${ROLE_LABELS_LOCAL[u.role] || u.role}</td>
+        <td>${u.unit_id != null ? escapeHtml(unitById.get(u.unit_id) || "—") : "—"}</td>
+        <td>${u.is_active ? '<span class="badge badge-open">активен</span>' : '<span class="badge">отключён</span>'}</td>
+        <td>${u.is_active ? `<button class="btn-danger deactivate-btn" data-id="${u.id}">Отключить</button>` : ""}</td>
+      </tr>`
+      )
+      .join("");
+
+    tbody.querySelectorAll(".deactivate-btn").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        if (!confirm("Отключить пользователя? Он больше не сможет войти.")) return;
+        try {
+          await apiFetch(`/admin/users/${btn.dataset.id}/deactivate`, { method: "POST" });
+          await loadUsers();
+        } catch (err) {
+          document.getElementById("usersMsg").innerHTML = `<div class="msg msg-error">${escapeHtml(err.message)}</div>`;
+        }
+      });
+    });
+  } catch (err) {
+    document.getElementById("usersMsg").innerHTML = `<div class="msg msg-error">${escapeHtml(err.message)}</div>`;
+  }
+}
+
+document.getElementById("addUserBtn").addEventListener("click", async () => {
+  const msgBox = document.getElementById("usersMsg");
+  msgBox.innerHTML = "";
+
+  const role = document.getElementById("newRole").value;
+  const payload = {
+    username: document.getElementById("newUsername").value.trim(),
+    password: document.getElementById("newPassword").value,
+    full_name: document.getElementById("newFullName").value.trim(),
+    role,
+    unit_id: role === "admin" ? null : Number(document.getElementById("newUnitId").value) || null,
+  };
+
+  if (!payload.username || !payload.password) {
+    msgBox.innerHTML = `<div class="msg msg-error">Укажите логин и пароль.</div>`;
+    return;
+  }
+
+  try {
+    await apiFetch("/admin/users", { method: "POST", body: payload });
+    document.getElementById("newUsername").value = "";
+    document.getElementById("newPassword").value = "";
+    document.getElementById("newFullName").value = "";
+    await loadUsers();
+    msgBox.innerHTML = `<div class="msg msg-ok">Пользователь создан.</div>`;
+  } catch (err) {
+    msgBox.innerHTML = `<div class="msg msg-error">${escapeHtml(err.message)}</div>`;
+  }
+});
+</script>
+</body>
+</html>

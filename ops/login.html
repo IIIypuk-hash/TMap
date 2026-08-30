@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Вход — служебный модуль TMap</title>
+<link rel="stylesheet" href="ops.css">
+</head>
+<body>
+
+<div class="login-shell">
+  <div class="card login-card">
+    <h1>TMap</h1>
+    <p class="subtitle">Вход в служебный модуль</p>
+
+    <div id="msgBox"></div>
+
+    <form id="loginForm">
+      <label class="field">
+        <span class="field-label">Логин</span>
+        <input type="text" id="username" autocomplete="username" required autofocus>
+      </label>
+      <label class="field">
+        <span class="field-label">Пароль</span>
+        <input type="password" id="password" autocomplete="current-password" required>
+      </label>
+      <button type="submit" id="loginBtn" class="btn-primary" style="width:100%;">Войти</button>
+    </form>
+  </div>
+</div>
+
+<script src="api.js"></script>
+<script>
+// Если токен уже есть и рабочий — сразу уводим на нужную страницу.
+(async () => {
+  if (getToken()) {
+    try {
+      const user = await apiFetch("/auth/me");
+      setUser(user);
+      window.location.href = ROLE_HOME[user.role] || "report.html";
+    } catch (_e) {
+      clearSession();
+    }
+  }
+})();
+
+const form = document.getElementById("loginForm");
+const msgBox = document.getElementById("msgBox");
+const loginBtn = document.getElementById("loginBtn");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  msgBox.innerHTML = "";
+  loginBtn.disabled = true;
+  loginBtn.textContent = "Вход…";
+
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("password").value;
+
+  try {
+    const token = await apiFetch("/auth/login", {
+      method: "POST",
+      form: true,
+      body: { username, password },
+    });
+    setToken(token.access_token);
+    const user = await apiFetch("/auth/me");
+    setUser(user);
+    window.location.href = ROLE_HOME[user.role] || "report.html";
+  } catch (err) {
+    msgBox.innerHTML = `<div class="msg msg-error">${escapeHtml(err.message)}</div>`;
+    loginBtn.disabled = false;
+    loginBtn.textContent = "Войти";
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+SQLAlchemy==2.0.35
+# SQLAlchemy тянет greenlet; для Python 3.9 на Windows у актуальных версий
+# greenlet нет готового wheel (нужен MSVC для сборки) — фиксируем версию,
+# для которой wheel есть.
+greenlet==3.0.3
+pydantic==2.9.2
+pydantic-settings==2.5.2
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+# passlib 1.7.4 не умеет определять версию bcrypt >=4.1 (там убрали
+# bcrypt.__about__) — фиксируем совместимую версию.
+bcrypt==4.0.1
+python-multipart==0.0.9
+anthropic==0.34.2
+httpx==0.27.2
+python-dotenv==1.0.1
+
+# Драйвер PostgreSQL для продакшена (для локальной разработки без Postgres
+# можно оставить DATABASE_URL=sqlite:///./tmap.db — драйвер не потребуется).
+psycopg2-binary==2.9.9

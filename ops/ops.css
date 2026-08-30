@@ -1,0 +1,246 @@
+/* Отдельный визуальный модуль внутренних служб. Палитра сознательно
+   перекликается с публичной картой (../style.css), но файл независимый —
+   это внутренний инструмент, а не часть публичной демо-страницы. */
+
+:root {
+  --bg: #0f1420;
+  --panel-bg: #161d2e;
+  --panel-bg-2: #1c2438;
+  --panel-border: #262f45;
+  --text: #e8ecf5;
+  --text-dim: #98a2b8;
+  --accent: #e63946;
+  --accent-dim: #8b1e3f;
+  --ok: #457b9d;
+  --good: #3fb37f;
+  --warn: #d99a2b;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+a { color: var(--ok); }
+
+/* ---------- Навигация ---------- */
+
+.ops-nav {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 10px 20px;
+  background: linear-gradient(180deg, #141a29, #0f1420);
+  border-bottom: 1px solid var(--panel-border);
+  flex-wrap: wrap;
+}
+.nav-brand { font-weight: 700; font-size: 14px; white-space: nowrap; }
+.nav-links { display: flex; gap: 4px; flex: 1; flex-wrap: wrap; }
+.nav-links a {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: 13px;
+  padding: 6px 12px;
+  border-radius: 6px;
+}
+.nav-links a:hover { background: var(--panel-bg-2); color: var(--text); }
+.nav-links a.active { background: var(--accent-dim); color: var(--text); }
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+/* ---------- Общие компоненты ---------- */
+
+.ops-shell { min-height: calc(100vh - 53px); }
+.ops-container { max-width: 780px; margin: 0 auto; padding: 24px 16px 60px; }
+
+.card {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  padding: 18px 20px;
+  margin-bottom: 18px;
+}
+.card h2 { margin: 0 0 4px; font-size: 16px; }
+.card .card-hint { margin: 0 0 14px; font-size: 12px; color: var(--text-dim); }
+
+label.field { display: block; margin-bottom: 14px; }
+label.field .field-label {
+  display: block;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+
+input[type="text"], input[type="password"], input[type="number"], textarea, select {
+  width: 100%;
+  background: var(--panel-bg-2);
+  border: 1px solid var(--panel-border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 9px 11px;
+  font-size: 14px;
+  font-family: inherit;
+}
+textarea { min-height: 140px; resize: vertical; line-height: 1.5; }
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--ok);
+}
+
+.btn-primary, .btn-secondary, .btn-danger {
+  border: none;
+  border-radius: 6px;
+  padding: 9px 18px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.btn-primary { background: var(--accent); color: white; }
+.btn-primary:hover { background: #c62b38; }
+.btn-primary:disabled { background: var(--accent-dim); cursor: default; opacity: 0.7; }
+.btn-secondary { background: #2a3350; color: var(--text); }
+.btn-secondary:hover { background: #384268; }
+.btn-danger { background: transparent; color: var(--accent); border: 1px solid var(--accent-dim); }
+.btn-danger:hover { background: var(--accent-dim); color: white; }
+
+.btn-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+.msg { border-radius: 6px; padding: 10px 12px; font-size: 13px; margin-bottom: 14px; }
+.msg-error { background: #3a1620; border: 1px solid var(--accent-dim); color: #f3aab3; }
+.msg-ok { background: #143526; border: 1px solid #1f6b47; color: #7fd9ab; }
+
+.badge {
+  display: inline-block;
+  font-size: 11px;
+  padding: 2px 9px;
+  border-radius: 10px;
+  color: white;
+  background: var(--ok);
+}
+.badge-open { background: var(--good); }
+.badge-closed { background: #4a5578; }
+.badge-warn { background: var(--warn); color: #2a1e04; }
+
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--panel-border); }
+th { color: var(--text-dim); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; }
+
+.mini-note { font-size: 11px; line-height: 1.5; color: var(--text-dim); margin: 6px 0 0; }
+
+/* Отрендеренный HTML рапорта (из активного шаблона) — оформляем как лист бумаги. */
+.report-render {
+  background: #fff;
+  color: #111;
+  border-radius: 6px;
+  padding: 20px 24px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ---------- Логин ---------- */
+
+.login-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.login-card { width: 100%; max-width: 360px; }
+.login-card h1 { font-size: 20px; margin: 0 0 4px; text-align: center; }
+.login-card .subtitle { text-align: center; color: var(--text-dim); font-size: 13px; margin: 0 0 20px; }
+
+/* ---------- Карта ---------- */
+
+.map-shell {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  height: calc(100vh - 53px);
+}
+.map-sidebar {
+  overflow-y: auto;
+  border-right: 1px solid var(--panel-border);
+  background: var(--panel-bg);
+  padding: 14px;
+}
+.map-area { position: relative; }
+#opsMap { position: absolute; inset: 0; background: #0b0f18; }
+
+.filter-row { display: flex; gap: 8px; margin-bottom: 12px; }
+.filter-row select { font-size: 12px; padding: 6px 8px; }
+
+.case-list-item {
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  background: var(--panel-bg-2);
+}
+.case-list-item:hover { border-color: var(--ok); }
+.case-list-item.selected { border-color: var(--accent); }
+.case-list-item .case-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+.case-list-item .case-meta { font-size: 11px; color: var(--text-dim); display: flex; justify-content: space-between; gap: 6px; }
+
+.detail-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 380px;
+  max-width: 100%;
+  height: 100%;
+  background: var(--panel-bg);
+  border-left: 1px solid var(--panel-border);
+  padding: 16px;
+  overflow-y: auto;
+  box-shadow: -6px 0 18px rgba(0,0,0,0.35);
+  transition: transform 0.2s ease;
+  z-index: 1000;
+}
+.detail-panel.hidden { transform: translateX(100%); pointer-events: none; }
+.close-btn {
+  position: absolute; top: 10px; right: 10px;
+  background: none; border: none; color: var(--text-dim);
+  font-size: 22px; cursor: pointer; line-height: 1;
+}
+.close-btn:hover { color: var(--text); }
+
+.doc-block {
+  border-top: 1px solid var(--panel-border);
+  padding-top: 12px;
+  margin-top: 12px;
+}
+.doc-meta { font-size: 11px; color: var(--text-dim); margin-bottom: 8px; }
+
+.place-hint {
+  background: #2a2308;
+  border: 1px solid var(--warn);
+  color: #f0d489;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 12px;
+  margin: 8px 0;
+}
+
+/* ---------- Админка ---------- */
+
+.admin-grid { display: grid; grid-template-columns: 1fr; gap: 18px; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 640px) {
+  .two-col { grid-template-columns: 1fr; }
+  .map-shell { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+}
