@@ -55,6 +55,63 @@ class ProcessedReport:
     fallback_lon: Optional[float] = None
 
 
+# Для тестового режима (ai_stub_mode) — простая эвристика по ключевым
+# словам вместо вызова ИИ. Не претендует на точность, только чтобы можно
+# было прогнать весь путь рапорта без платного ключа.
+_STUB_CATEGORY_KEYWORDS = {
+    "fire": ["пожар", "возгоран", "горит", "загорел"],
+    "explosion": ["взрыв", "взорв"],
+    "traffic_accident": ["дтп", "авари", "столкновение", "наезд"],
+    "shooting": ["стрельб", "выстрел", "огнестрел"],
+    "drone": ["бпла", "дрон", "квадрокоптер"],
+    "medical": ["скорая", "пострадав", "травм", "плохо себя"],
+    "atd": ["дебош", "хулиган", "бытов"],
+}
+
+# Учитывает, что "г." и "ул." — сокращения с точкой, а не конец предложения
+# (наивная версия принимала точку в "ул." за границу фразы и обрезала адрес).
+_STUB_LOCATION_RE = re.compile(
+    r"((?:г\.?|пос(?:ёлок)?\.?|село|деревня|д\.)\s*[А-ЯЁ][а-яё]+"
+    r"(?:\s*(?:обл(?:асть)?\.?|край|район))?"
+    r"(?:\s*,\s*(?:ул(?:ица)?\.?|пр(?:-?кт|оспект)\.?|пер(?:еулок)?\.?|"
+    r"наб(?:ережная)?\.?|пл(?:ощадь)?\.?|ш(?:оссе)?\.?)\s*[А-ЯЁа-яё\-]+"
+    r"(?:\s*\d+[а-яА-Я]?)?)?)"
+)
+
+
+def _stub_process_report(raw_text: str, template_html: str) -> "ProcessedReport":
+    placeholders = extract_placeholders(template_html)
+    fields = {ph: "" for ph in placeholders}
+    if "description" in fields:
+        fields["description"] = raw_text.strip()
+    elif placeholders:
+        fields[placeholders[0]] = raw_text.strip()
+
+    text_lower = raw_text.lower()
+    category = "other"
+    for cat, keywords in _STUB_CATEGORY_KEYWORDS.items():
+        if any(kw in text_lower for kw in keywords):
+            category = cat
+            break
+
+    location_match = _STUB_LOCATION_RE.search(raw_text)
+    location_query = location_match.group(1).strip() if location_match else ""
+
+    title = raw_text.strip().replace("\n", " ")
+    if len(title) > 80:
+        title = title[:80].rsplit(" ", 1)[0] + "…"
+    title = title or "Без названия"
+
+    return ProcessedReport(
+        fields=fields,
+        title=title,
+        category=category,
+        location_query=location_query,
+        fallback_lat=None,
+        fallback_lon=None,
+    )
+
+
 def _client() -> anthropic.Anthropic:
     if not settings.anthropic_api_key:
         raise RuntimeError(
@@ -101,6 +158,9 @@ def _build_prompt(raw_text: str, placeholders: list[str]) -> str:
 
 
 def process_report(raw_text: str, template_html: str) -> ProcessedReport:
+    if settings.ai_stub_mode:
+        return _stub_process_report(raw_text, template_html)
+
     placeholders = extract_placeholders(template_html)
     client = _client()
 

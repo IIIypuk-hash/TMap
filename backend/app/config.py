@@ -17,6 +17,12 @@ class Settings(BaseSettings):
     anthropic_api_key: str = ""
     anthropic_model: str = "claude-sonnet-5"
 
+    # Тестовый режим: не дёргает Anthropic API вообще, оформляет рапорт
+    # простой эвристикой (ключевые слова, regex для адреса). Нужен, чтобы
+    # проверять весь путь (превью → правка полей → точка на карте →
+    # сохранение дела) без платного ключа. Выключите, когда ключ появится.
+    ai_stub_mode: bool = False
+
     nominatim_user_agent: str = "TMap-internal-ops/1.0"
 
     bootstrap_admin_username: str = "admin"

@@ -23,10 +23,17 @@ pip install -r requirements.txt
 copy .env.example .env
 ```
 
-Заполните `.env`: как минимум `SECRET_KEY`, `ANTHROPIC_API_KEY`,
-`BOOTSTRAP_ADMIN_PASSWORD`. Для локальной разработки `DATABASE_URL` можно
-оставить как есть (SQLite-файл появится сам). Для боевого стенда укажите
-Postgres: `postgresql+psycopg2://user:password@host:5432/tmap`.
+Заполните `.env`: как минимум `SECRET_KEY`, `BOOTSTRAP_ADMIN_PASSWORD`.
+Для локальной разработки `DATABASE_URL` можно оставить как есть
+(SQLite-файл появится сам). Для боевого стенда укажите Postgres:
+`postgresql+psycopg2://user:password@host:5432/tmap`.
+
+Пока нет платного ключа `ANTHROPIC_API_KEY` — поставьте `AI_STUB_MODE=true`.
+Рапорт тогда оформляется простой эвристикой (ключевые слова для категории,
+regex для адреса) вместо вызова ИИ — весь путь (рапорт → правка полей →
+точка на карте → сохранение дела) можно проверить бесплатно. Когда ключ
+появится — впишите его в `ANTHROPIC_API_KEY` и поставьте `AI_STUB_MODE=false`
+(или уберите строку).
 
 ## Запуск
 
