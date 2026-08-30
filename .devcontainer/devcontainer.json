@@ -1,0 +1,17 @@
+{
+  "name": "TMap — служебный модуль (тест в Codespaces)",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11",
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+  "postStartCommand": "bash .devcontainer/start.sh",
+  "forwardPorts": [8000, 8642],
+  "portsAttributes": {
+    "8000": {
+      "label": "TMap — API (бэкенд)",
+      "onAutoForward": "silent"
+    },
+    "8642": {
+      "label": "TMap — служебный модуль",
+      "onAutoForward": "openPreview"
+    }
+  }
+}

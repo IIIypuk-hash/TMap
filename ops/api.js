@@ -4,7 +4,20 @@
 
 // Адрес бэкенда FastAPI. При разворачивании на боевом стенде поменяйте на
 // реальный адрес API (например, "https://ops-api.example.org").
-const API_BASE = "http://localhost:8000";
+//
+// Автоопределение для GitHub Codespaces: там фронтенд и бэкенд открыты на
+// двух разных проброшенных портах одного codespace — каждый со своим
+// поддоменом вида "<codespace>-<порт>.app.github.dev". Подставляем порт
+// бэкенда (8000) в тот же поддомен, чтобы не редактировать это вручную
+// при каждом новом codespace.
+const API_BASE = (() => {
+  const host = window.location.host;
+  const match = host.match(/^(.*)-(\d+)(\.app\.github\.dev)$/);
+  if (match) {
+    return `${window.location.protocol}//${match[1]}-8000${match[3]}`;
+  }
+  return "http://localhost:8000";
+})();
 
 const TOKEN_KEY = "tmap_token";
 const USER_KEY = "tmap_user";

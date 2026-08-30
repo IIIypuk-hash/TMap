@@ -18,6 +18,10 @@ app = FastAPI(title="TMap — внутренние рапорты", version="0.1
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origin_list,
+    # Плюс любые проброшенные порты GitHub Codespaces — чтобы можно было
+    # тестировать без постоянного хостинга (см. .devcontainer/). На боевом
+    # стенде эту строку стоит убрать или сузить до конкретного домена.
+    allow_origin_regex=r"https://.*\.app\.github\.dev",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
