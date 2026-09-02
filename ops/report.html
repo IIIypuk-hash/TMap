@@ -8,8 +8,6 @@
 <link rel="stylesheet" href="ops.css">
 <style>
   #miniMap { height: 260px; border-radius: 8px; margin: 8px 0; }
-  .field-block { margin-bottom: 14px; }
-  .field-block textarea { min-height: 70px; }
   .system-fields-note { font-size: 12px; color: var(--text-dim); background: var(--panel-bg-2); border-radius: 6px; padding: 8px 10px; margin-bottom: 14px; }
 </style>
 </head>
@@ -24,9 +22,10 @@
     <div class="card" id="stage1Card">
       <h2>Новый рапорт</h2>
       <p class="card-hint">
-        Опишите произошедшее обычным языком — ИИ оформит текст в служебный
-        рапорт по шаблону. Дальше можно будет проверить и поправить всё
-        перед отправкой.
+        Опишите произошедшее обычным языком, в свободной форме, одним
+        текстом — ИИ сам оформит его в служебный рапорт по шаблону.
+        Разбивать по пунктам не нужно. Дальше готовый рапорт можно будет
+        посмотреть и отправить.
       </p>
 
       <div id="msgBoxStage1"></div>
@@ -51,24 +50,28 @@
       </form>
     </div>
 
-    <!-- Шаг 2: проверка и подтверждение черновика -->
+    <!-- Шаг 2: проверка и подтверждение готового рапорта -->
     <div class="card" id="stage2Card" style="display:none;">
-      <h2>Проверьте рапорт перед отправкой</h2>
-      <p class="card-hint">ИИ оформил текст ниже. Поправьте, если нужно, и отправьте.</p>
+      <h2>Рапорт готов</h2>
+      <p class="card-hint">
+        ИИ оформил рапорт по шаблону из вашего описания. Если что-то не так —
+        вернитесь и поправьте исходный текст, рапорт сформируется заново.
+        Вручную здесь можно поправить только заголовок в списке дел,
+        категорию и точку на карте.
+      </p>
 
       <div id="msgBoxStage2"></div>
 
-      <label class="field">
-        <span class="field-label">Заголовок дела</span>
-        <input type="text" id="draftTitle">
-      </label>
-
-      <label class="field">
-        <span class="field-label">Категория</span>
-        <select id="draftCategory"></select>
-      </label>
-
-      <div id="draftFieldsContainer"></div>
+      <div class="two-col">
+        <label class="field">
+          <span class="field-label">Заголовок дела (для списка на карте)</span>
+          <input type="text" id="draftTitle">
+        </label>
+        <label class="field">
+          <span class="field-label">Категория</span>
+          <select id="draftCategory"></select>
+        </label>
+      </div>
 
       <div class="system-fields-note" id="systemFieldsNote"></div>
 
@@ -83,7 +86,7 @@
       </div>
 
       <label class="field">
-        <span class="field-label">Предпросмотр рапорта</span>
+        <span class="field-label">Готовый рапорт</span>
       </label>
       <div id="draftRender" class="report-render"></div>
 
@@ -197,32 +200,14 @@ function openStage2() {
     (sysLines.length ? sysLines.join(" · ") + ". " : "") +
     "Место, определённое ИИ: " + (draft.location_text || "не определено");
 
-  const container = document.getElementById("draftFieldsContainer");
-  container.innerHTML = "";
-  for (const key of Object.keys(draft.fields)) {
-    if (SYSTEM_TEMPLATE_FIELDS.includes(key)) continue;
-    const block = document.createElement("label");
-    block.className = "field field-block";
-    block.innerHTML = `
-      <span class="field-label">${escapeHtml(fieldLabel(key))}</span>
-      <textarea data-field="${escapeHtml(key)}">${escapeHtml(currentFields[key] || "")}</textarea>
-    `;
-    container.appendChild(block);
-  }
-  container.querySelectorAll("textarea[data-field]").forEach((ta) => {
-    ta.addEventListener("input", () => {
-      currentFields[ta.dataset.field] = ta.value;
-      updatePreview();
-    });
-  });
+  // Содержательные поля (то, что ИИ извлёк из текста сотрудника) намеренно
+  // не даём редактировать по отдельности — сотрудник вносит данные один раз,
+  // свободным текстом на шаге 1; поправить рапорт можно только вернувшись
+  // назад и переписав исходное описание, чтобы ИИ сформировал документ заново.
 
   setupMiniMap();
   updateLocationHint();
   updatePreview();
-}
-
-function fieldLabel(key) {
-  return key.replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase());
 }
 
 document.getElementById("draftCategory").addEventListener("change", () => {
