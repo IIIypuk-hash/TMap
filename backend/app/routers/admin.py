@@ -3,7 +3,16 @@ from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..models import ReportTemplate, Role, Unit, User
-from ..schemas import TemplateOut, TemplateUpdate, UnitCreate, UnitOut, UserCreate, UserOut
+from ..schemas import (
+    TemplateOut,
+    TemplateUpdate,
+    UnitCreate,
+    UnitOut,
+    UnitUpdate,
+    UserCreate,
+    UserOut,
+    UserUpdate,
+)
 from ..security import hash_password, require_roles
 
 router = APIRouter(prefix="/admin", tags=["admin"], dependencies=[Depends(require_roles(Role.admin))])
@@ -53,8 +62,22 @@ def list_units(db: Session = Depends(get_db)):
 def create_unit(payload: UnitCreate, db: Session = Depends(get_db)):
     if db.query(Unit).filter(Unit.name == payload.name).first():
         raise HTTPException(status_code=400, detail="Отделение с таким названием уже существует")
-    unit = Unit(name=payload.name)
+    unit = Unit(name=payload.name, report_addressee=payload.report_addressee)
     db.add(unit)
+    db.commit()
+    db.refresh(unit)
+    return unit
+
+
+@router.put("/units/{unit_id}", response_model=UnitOut)
+def update_unit(unit_id: int, payload: UnitUpdate, db: Session = Depends(get_db)):
+    unit = db.query(Unit).filter(Unit.id == unit_id).first()
+    if unit is None:
+        raise HTTPException(status_code=404, detail="Отделение не найдено")
+    if db.query(Unit).filter(Unit.name == payload.name, Unit.id != unit_id).first():
+        raise HTTPException(status_code=400, detail="Отделение с таким названием уже существует")
+    unit.name = payload.name
+    unit.report_addressee = payload.report_addressee
     db.commit()
     db.refresh(unit)
     return unit
@@ -80,10 +103,32 @@ def create_user(payload: UserCreate, db: Session = Depends(get_db)):
         username=payload.username,
         hashed_password=hash_password(payload.password),
         full_name=payload.full_name,
+        rank=payload.rank,
+        position=payload.position,
         role=payload.role,
         unit_id=payload.unit_id,
     )
     db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+@router.put("/users/{user_id}", response_model=UserOut)
+def update_user(user_id: int, payload: UserUpdate, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.id == user_id).first()
+    if user is None:
+        raise HTTPException(status_code=404, detail="Пользователь не найден")
+    if payload.role != Role.admin and payload.unit_id is None:
+        raise HTTPException(status_code=400, detail="Для этой роли нужно указать отделение")
+    if payload.unit_id is not None and not db.query(Unit).filter(Unit.id == payload.unit_id).first():
+        raise HTTPException(status_code=404, detail="Отделение не найдено")
+
+    user.full_name = payload.full_name
+    user.rank = payload.rank
+    user.position = payload.position
+    user.role = payload.role
+    user.unit_id = payload.unit_id
     db.commit()
     db.refresh(user)
     return user

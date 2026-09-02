@@ -37,6 +37,11 @@ class Unit(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(200), unique=True, nullable=False)
+    # Шапка рапорта — кому это отделение докладывает ("Командиру ...,
+    # звание, ФИО"). Статический оргданные, не выводится ИИ — правит
+    # сисадмин один раз на отделение. Подставляется в шаблон как
+    # {{addressee}}.
+    report_addressee = Column(Text, nullable=False, default="")
     created_at = Column(DateTime, default=datetime.utcnow)
 
     users = relationship("User", back_populates="unit")
@@ -50,6 +55,11 @@ class User(Base):
     username = Column(String(100), unique=True, nullable=False, index=True)
     hashed_password = Column(String(255), nullable=False)
     full_name = Column(String(200), nullable=False, default="")
+    # Для блока подписи в рапорте ({{officer_rank}}, {{officer_position}}) —
+    # напр. "старший лейтенант полиции", "старший инспектор ООС". Заполняет
+    # сисадмин при создании/редактировании пользователя, ИИ их не трогает.
+    rank = Column(String(200), nullable=False, default="")
+    position = Column(String(200), nullable=False, default="")
     role = Column(Enum(Role), nullable=False)
     unit_id = Column(Integer, ForeignKey("units.id"), nullable=True)
     is_active = Column(Boolean, default=True, nullable=False)

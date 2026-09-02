@@ -22,12 +22,19 @@ class LoginRequest(BaseModel):
 
 class UnitCreate(BaseModel):
     name: str
+    report_addressee: str = ""
+
+
+class UnitUpdate(BaseModel):
+    name: str
+    report_addressee: str = ""
 
 
 class UnitOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: int
     name: str
+    report_addressee: str
 
 
 # ---------- User ----------
@@ -36,6 +43,16 @@ class UserCreate(BaseModel):
     username: str
     password: str
     full_name: str = ""
+    rank: str = ""
+    position: str = ""
+    role: Role
+    unit_id: Optional[int] = None
+
+
+class UserUpdate(BaseModel):
+    full_name: str = ""
+    rank: str = ""
+    position: str = ""
     role: Role
     unit_id: Optional[int] = None
 
@@ -45,6 +62,8 @@ class UserOut(BaseModel):
     id: int
     username: str
     full_name: str
+    rank: str
+    position: str
     role: Role
     unit_id: Optional[int] = None
     is_active: bool

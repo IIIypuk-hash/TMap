@@ -17,11 +17,15 @@
     <div class="card">
       <h2>Шаблон рапорта</h2>
       <p class="card-hint">
-        HTML с полями вида <code>{{имя_поля}}</code>. Каждое такое поле ИИ
-        заполнит из текста сотрудника. Системные поля, которые подставляются
-        автоматически (не через ИИ), если использованы в шаблоне:
-        <code>date</code>, <code>officer_name</code>, <code>unit_name</code>,
-        <code>category_label</code>, <code>location</code>.
+        HTML с полями вида <code>{{имя_поля}}</code>. Поля, которых нет в
+        списке системных ниже, заполняет ИИ из текста сотрудника. Системные
+        поля подставляются кодом из карточек отделения/пользователя, а не
+        ИИ, и не могут быть подменены с браузера:
+        <code>date</code>, <code>officer_name</code>, <code>officer_rank</code>,
+        <code>officer_position</code>, <code>unit_name</code>,
+        <code>addressee</code>, <code>category_label</code>, <code>location</code>.
+        Звание/должность сотрудника и адресата отделения задайте ниже —
+        разделы «Отделения» и «Пользователи».
       </p>
 
       <div id="templateMsg"></div>
@@ -44,23 +48,57 @@
     <!-- Отделения -->
     <div class="card">
       <h2>Отделения</h2>
+      <p class="card-hint">
+        «Адресат» — шапка рапорта этого отделения: кому докладывают
+        (звание, ФИО). Подставляется как {{addressee}}.
+      </p>
       <div id="unitsMsg"></div>
       <table id="unitsTable">
-        <thead><tr><th>ID</th><th>Название</th></tr></thead>
+        <thead><tr><th>ID</th><th>Название</th><th>Адресат</th><th></th></tr></thead>
         <tbody></tbody>
       </table>
-      <div class="btn-row" style="margin-top:12px;">
-        <input type="text" id="newUnitName" placeholder="Название нового отделения" style="max-width:260px;">
+
+      <h2 style="margin-top:20px;">Новое отделение</h2>
+      <label class="field">
+        <span class="field-label">Название</span>
+        <input type="text" id="newUnitName" placeholder="Название нового отделения">
+      </label>
+      <label class="field">
+        <span class="field-label">Адресат рапортов (необязательно, можно заполнить позже)</span>
+        <textarea id="newUnitAddressee" style="min-height:60px;" placeholder="Командиру ...&#10;звание, Фамилия И.О."></textarea>
+      </label>
+      <div class="btn-row">
         <button id="addUnitBtn" class="btn-secondary">Добавить отделение</button>
+      </div>
+
+      <div id="unitEditBlock" style="display:none; margin-top:20px; padding-top:16px; border-top:1px solid var(--panel-border);">
+        <h2>Редактировать отделение #<span id="editUnitIdLabel"></span></h2>
+        <label class="field">
+          <span class="field-label">Название</span>
+          <input type="text" id="editUnitName">
+        </label>
+        <label class="field">
+          <span class="field-label">Адресат рапортов</span>
+          <textarea id="editUnitAddressee" style="min-height:60px;"></textarea>
+        </label>
+        <div class="btn-row">
+          <button id="saveUnitBtn" class="btn-primary">Сохранить изменения</button>
+          <button id="cancelUnitEditBtn" class="btn-secondary">Отмена</button>
+        </div>
       </div>
     </div>
 
     <!-- Пользователи -->
     <div class="card">
       <h2>Пользователи</h2>
+      <p class="card-hint">
+        «Звание» и «Должность» идут в блок подписи рапорта ({{officer_rank}},
+        {{officer_position}}) — например, «старший лейтенант полиции» и
+        «старший инспектор ООС».
+      </p>
       <div id="usersMsg"></div>
       <table id="usersTable">
-        <thead><tr><th>Логин</th><th>Имя</th><th>Роль</th><th>Отделение</th><th>Статус</th><th></th></tr></thead>
+        <thead><tr><th>Логин</th><th>Имя</th><th>Звание</th><th>Должность</th><th>Роль</th><th>Отделение</th><th>Статус</th><th></th></tr></thead>
         <tbody></tbody>
       </table>
 
@@ -88,12 +126,55 @@
           </select>
         </label>
         <label class="field">
+          <span class="field-label">Звание</span>
+          <input type="text" id="newRank" placeholder="напр. старший лейтенант полиции">
+        </label>
+        <label class="field">
+          <span class="field-label">Должность</span>
+          <input type="text" id="newPosition" placeholder="напр. старший инспектор ООС">
+        </label>
+        <label class="field">
           <span class="field-label">Отделение</span>
           <select id="newUnitId"></select>
         </label>
       </div>
       <div class="btn-row">
         <button id="addUserBtn" class="btn-primary">Создать пользователя</button>
+      </div>
+
+      <div id="userEditBlock" style="display:none; margin-top:20px; padding-top:16px; border-top:1px solid var(--panel-border);">
+        <h2>Редактировать пользователя <span id="editUsername"></span></h2>
+        <div class="two-col">
+          <label class="field">
+            <span class="field-label">Полное имя</span>
+            <input type="text" id="editFullName">
+          </label>
+          <label class="field">
+            <span class="field-label">Роль</span>
+            <select id="editRole">
+              <option value="employee">Сотрудник</option>
+              <option value="commander">Командир отделения</option>
+              <option value="staff">Штаб</option>
+              <option value="admin">Сисадмин</option>
+            </select>
+          </label>
+          <label class="field">
+            <span class="field-label">Звание</span>
+            <input type="text" id="editRank">
+          </label>
+          <label class="field">
+            <span class="field-label">Должность</span>
+            <input type="text" id="editPosition">
+          </label>
+          <label class="field">
+            <span class="field-label">Отделение</span>
+            <select id="editUnitId"></select>
+          </label>
+        </div>
+        <div class="btn-row">
+          <button id="saveUserBtn" class="btn-primary">Сохранить изменения</button>
+          <button id="cancelUserEditBtn" class="btn-secondary">Отмена</button>
+        </div>
       </div>
     </div>
 
@@ -107,7 +188,11 @@ let units = [];
 (async () => {
   const user = await requireAuth(["admin"]);
   renderNav(user, "admin");
-  await Promise.all([loadTemplate(), loadUnits(), loadUsers()]);
+  // loadUsers строит и таблицу, и форму редактирования по уже
+  // загруженному списку отделений (unitById, селект отделения) — должен
+  // ждать loadUnits, а не выполняться параллельно с ним.
+  await loadUnits();
+  await Promise.all([loadTemplate(), loadUsers()]);
 })();
 
 // ---------- Шаблон ----------
@@ -157,10 +242,27 @@ async function loadUnits() {
   try {
     units = await apiFetch("/admin/units");
     const tbody = document.querySelector("#unitsTable tbody");
-    tbody.innerHTML = units.map((u) => `<tr><td>${u.id}</td><td>${escapeHtml(u.name)}</td></tr>`).join("");
+    tbody.innerHTML = units
+      .map(
+        (u) => `
+      <tr>
+        <td>${u.id}</td>
+        <td>${escapeHtml(u.name)}</td>
+        <td style="white-space:pre-line; max-width:280px;">${escapeHtml(u.report_addressee) || "—"}</td>
+        <td><button class="btn-secondary edit-unit-btn" data-id="${u.id}">Редактировать</button></td>
+      </tr>`
+      )
+      .join("");
 
-    const unitSelect = document.getElementById("newUnitId");
-    unitSelect.innerHTML = units.map((u) => `<option value="${u.id}">${escapeHtml(u.name)}</option>`).join("");
+    tbody.querySelectorAll(".edit-unit-btn").forEach((btn) => {
+      btn.addEventListener("click", () => openUnitEdit(Number(btn.dataset.id)));
+    });
+
+    const unitSelects = [document.getElementById("newUnitId"), document.getElementById("editUnitId")];
+    for (const sel of unitSelects) {
+      if (!sel) continue;
+      sel.innerHTML = units.map((u) => `<option value="${u.id}">${escapeHtml(u.name)}</option>`).join("");
+    }
   } catch (err) {
     document.getElementById("unitsMsg").innerHTML = `<div class="msg msg-error">${escapeHtml(err.message)}</div>`;
   }
@@ -170,11 +272,51 @@ document.getElementById("addUnitBtn").addEventListener("click", async () => {
   const msgBox = document.getElementById("unitsMsg");
   msgBox.innerHTML = "";
   const name = document.getElementById("newUnitName").value.trim();
+  const report_addressee = document.getElementById("newUnitAddressee").value.trim();
   if (!name) return;
   try {
-    await apiFetch("/admin/units", { method: "POST", body: { name } });
+    await apiFetch("/admin/units", { method: "POST", body: { name, report_addressee } });
     document.getElementById("newUnitName").value = "";
+    document.getElementById("newUnitAddressee").value = "";
     await loadUnits();
+  } catch (err) {
+    msgBox.innerHTML = `<div class="msg msg-error">${escapeHtml(err.message)}</div>`;
+  }
+});
+
+// ---------- Редактирование отделения ----------
+
+let editingUnitId = null;
+
+function openUnitEdit(unitId) {
+  const unit = units.find((u) => u.id === unitId);
+  if (!unit) return;
+  editingUnitId = unitId;
+  document.getElementById("editUnitIdLabel").textContent = unit.id;
+  document.getElementById("editUnitName").value = unit.name;
+  document.getElementById("editUnitAddressee").value = unit.report_addressee || "";
+  document.getElementById("unitEditBlock").style.display = "block";
+  document.getElementById("unitEditBlock").scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+document.getElementById("cancelUnitEditBtn").addEventListener("click", () => {
+  editingUnitId = null;
+  document.getElementById("unitEditBlock").style.display = "none";
+});
+
+document.getElementById("saveUnitBtn").addEventListener("click", async () => {
+  if (editingUnitId == null) return;
+  const msgBox = document.getElementById("unitsMsg");
+  msgBox.innerHTML = "";
+  const name = document.getElementById("editUnitName").value.trim();
+  const report_addressee = document.getElementById("editUnitAddressee").value.trim();
+  if (!name) return;
+  try {
+    await apiFetch(`/admin/units/${editingUnitId}`, { method: "PUT", body: { name, report_addressee } });
+    document.getElementById("unitEditBlock").style.display = "none";
+    editingUnitId = null;
+    await loadUnits();
+    msgBox.innerHTML = `<div class="msg msg-ok">Отделение обновлено.</div>`;
   } catch (err) {
     msgBox.innerHTML = `<div class="msg msg-error">${escapeHtml(err.message)}</div>`;
   }
@@ -189,24 +331,35 @@ const ROLE_LABELS_LOCAL = {
   admin: "Сисадмин",
 };
 
+let allUsers = [];
+
 async function loadUsers() {
   try {
-    const list = await apiFetch("/admin/users");
+    allUsers = await apiFetch("/admin/users");
     const unitById = new Map(units.map((u) => [u.id, u.name]));
     const tbody = document.querySelector("#usersTable tbody");
-    tbody.innerHTML = list
+    tbody.innerHTML = allUsers
       .map(
         (u) => `
       <tr>
         <td>${escapeHtml(u.username)}</td>
         <td>${escapeHtml(u.full_name)}</td>
+        <td>${escapeHtml(u.rank) || "—"}</td>
+        <td>${escapeHtml(u.position) || "—"}</td>
         <td>${ROLE_LABELS_LOCAL[u.role] || u.role}</td>
         <td>${u.unit_id != null ? escapeHtml(unitById.get(u.unit_id) || "—") : "—"}</td>
         <td>${u.is_active ? '<span class="badge badge-open">активен</span>' : '<span class="badge">отключён</span>'}</td>
-        <td>${u.is_active ? `<button class="btn-danger deactivate-btn" data-id="${u.id}">Отключить</button>` : ""}</td>
+        <td class="btn-row">
+          <button class="btn-secondary edit-user-btn" data-id="${u.id}">Редактировать</button>
+          ${u.is_active ? `<button class="btn-danger deactivate-btn" data-id="${u.id}">Отключить</button>` : ""}
+        </td>
       </tr>`
       )
       .join("");
+
+    tbody.querySelectorAll(".edit-user-btn").forEach((btn) => {
+      btn.addEventListener("click", () => openUserEdit(Number(btn.dataset.id)));
+    });
 
     tbody.querySelectorAll(".deactivate-btn").forEach((btn) => {
       btn.addEventListener("click", async () => {
@@ -224,6 +377,54 @@ async function loadUsers() {
   }
 }
 
+// ---------- Редактирование пользователя ----------
+
+let editingUserId = null;
+
+function openUserEdit(userId) {
+  const user = allUsers.find((u) => u.id === userId);
+  if (!user) return;
+  editingUserId = userId;
+  document.getElementById("editUsername").textContent = user.username;
+  document.getElementById("editFullName").value = user.full_name;
+  document.getElementById("editRole").value = user.role;
+  document.getElementById("editRank").value = user.rank || "";
+  document.getElementById("editPosition").value = user.position || "";
+  if (user.unit_id != null) document.getElementById("editUnitId").value = String(user.unit_id);
+  document.getElementById("userEditBlock").style.display = "block";
+  document.getElementById("userEditBlock").scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+document.getElementById("cancelUserEditBtn").addEventListener("click", () => {
+  editingUserId = null;
+  document.getElementById("userEditBlock").style.display = "none";
+});
+
+document.getElementById("saveUserBtn").addEventListener("click", async () => {
+  if (editingUserId == null) return;
+  const msgBox = document.getElementById("usersMsg");
+  msgBox.innerHTML = "";
+
+  const role = document.getElementById("editRole").value;
+  const payload = {
+    full_name: document.getElementById("editFullName").value.trim(),
+    rank: document.getElementById("editRank").value.trim(),
+    position: document.getElementById("editPosition").value.trim(),
+    role,
+    unit_id: role === "admin" ? null : Number(document.getElementById("editUnitId").value) || null,
+  };
+
+  try {
+    await apiFetch(`/admin/users/${editingUserId}`, { method: "PUT", body: payload });
+    document.getElementById("userEditBlock").style.display = "none";
+    editingUserId = null;
+    await loadUsers();
+    msgBox.innerHTML = `<div class="msg msg-ok">Пользователь обновлён.</div>`;
+  } catch (err) {
+    msgBox.innerHTML = `<div class="msg msg-error">${escapeHtml(err.message)}</div>`;
+  }
+});
+
 document.getElementById("addUserBtn").addEventListener("click", async () => {
   const msgBox = document.getElementById("usersMsg");
   msgBox.innerHTML = "";
@@ -233,6 +434,8 @@ document.getElementById("addUserBtn").addEventListener("click", async () => {
     username: document.getElementById("newUsername").value.trim(),
     password: document.getElementById("newPassword").value,
     full_name: document.getElementById("newFullName").value.trim(),
+    rank: document.getElementById("newRank").value.trim(),
+    position: document.getElementById("newPosition").value.trim(),
     role,
     unit_id: role === "admin" ? null : Number(document.getElementById("newUnitId").value) || null,
   };
@@ -247,6 +450,8 @@ document.getElementById("addUserBtn").addEventListener("click", async () => {
     document.getElementById("newUsername").value = "";
     document.getElementById("newPassword").value = "";
     document.getElementById("newFullName").value = "";
+    document.getElementById("newRank").value = "";
+    document.getElementById("newPosition").value = "";
     await loadUsers();
     msgBox.innerHTML = `<div class="msg msg-ok">Пользователь создан.</div>`;
   } catch (err) {

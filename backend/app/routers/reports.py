@@ -40,6 +40,25 @@ def _resolve_location(processed) -> tuple[Optional[float], Optional[float], bool
     return lat, lon, needs_manual
 
 
+def _system_fields(current_user: User, category: str, location_query: str) -> dict:
+    """Организационные поля, которые ВСЕГДА берутся из БД/кода, а не из ИИ
+    и не из того, что мог прислать клиент — иначе в подписанном документе
+    можно подменить, кто и от чьего имени докладывает. Прямое присваивание
+    (не setdefault!): даже если ключ уже есть в fields пустой строкой
+    (плейсхолдер шаблона без значения от ИИ), значение должно замениться."""
+
+    unit = current_user.unit
+    return {
+        "officer_name": current_user.full_name or current_user.username,
+        "officer_rank": current_user.rank,
+        "officer_position": current_user.position,
+        "unit_name": unit.name if unit else "",
+        "addressee": unit.report_addressee if unit else "",
+        "category_label": CATEGORY_LABELS.get(category, category),
+        "location": location_query,
+    }
+
+
 @router.post("/preview", response_model=ReportDraft)
 def preview_report(
     payload: ReportPreviewRequest,
@@ -69,12 +88,9 @@ def preview_report(
 
     # Автоподставляемые системные поля — доступны в шаблоне наравне с теми,
     # что заполнил ИИ, но задаются кодом, а не моделью (дата, отделение,
-    # автор, человекочитаемая категория).
-    processed.fields.setdefault("date", datetime.utcnow().strftime("%d.%m.%Y %H:%M"))
-    processed.fields.setdefault("officer_name", current_user.full_name or current_user.username)
-    processed.fields.setdefault("unit_name", current_user.unit.name if current_user.unit else "")
-    processed.fields.setdefault("category_label", CATEGORY_LABELS.get(processed.category, processed.category))
-    processed.fields.setdefault("location", processed.location_query)
+    # автор, адресат и т.п.).
+    processed.fields["date"] = datetime.utcnow().strftime("%d.%m.%Y %H:%M")
+    processed.fields.update(_system_fields(current_user, processed.category, processed.location_query))
 
     lat, lon, needs_manual = _resolve_location(processed)
     rendered_html = render_template(template.html_content, processed.fields)
@@ -116,8 +132,13 @@ def confirm_report(
         )
 
     category = payload.category if payload.category in CATEGORIES else "other"
+    # Организационные поля пере-подставляем из БД на момент сохранения, а
+    # не берём из payload.fields как есть: черновик мог редактироваться в
+    # браузере, и без этого в подписанном документе можно было бы
+    # подделать, кто и от чьего имени докладывает.
     fields = dict(payload.fields)
-    fields["category_label"] = CATEGORY_LABELS.get(category, category)
+    fields["date"] = datetime.utcnow().strftime("%d.%m.%Y %H:%M")
+    fields.update(_system_fields(current_user, category, payload.location_text))
     rendered_html = render_template(template.html_content, fields)
 
     case = _check_case_access(db, current_user, payload.case_id)

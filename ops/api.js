@@ -128,9 +128,20 @@ const CATEGORY_COLORS = {
   other: "#6c757d",
 };
 
-// Поля шаблона, которые подставляются кодом (см. backend/app/routers/reports.py),
-// а не ИИ — сотруднику их лучше не редактировать вручную на превью рапорта.
-const SYSTEM_TEMPLATE_FIELDS = ["date", "officer_name", "unit_name", "category_label", "location"];
+// Поля шаблона, которые подставляются кодом (см. backend/app/routers/reports.py
+// и SYSTEM_FIELDS в backend/app/ai.py), а не ИИ — сотруднику их не показываем
+// как редактируемые на превью рапорта (сервер всё равно перезапишет их
+// реальными данными при сохранении, даже если прислать другое).
+const SYSTEM_TEMPLATE_FIELDS = [
+  "date",
+  "officer_name",
+  "officer_rank",
+  "officer_position",
+  "unit_name",
+  "addressee",
+  "category_label",
+  "location",
+];
 
 // Та же логика подстановки, что render_template в backend/app/ai.py —
 // используется для мгновенного превью на клиенте при правке полей,
